@@ -15,6 +15,23 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+		"taskDefinitions": [ 
+			{
+			"type": "pysys"
+			}
+		],
+		"problemMatchers": [
+			{
+				"name": "pysys",
+				"owner": "pysys",
+				"fileLocation": ["relative", "${workspaceFolder}"],
+				"pattern": {
+					"regexp": "(FAILED)\\:\\s+([a-zA-Z0-9_\r\n]*)",
+					"file": 2,
+					"message": 1
+				}
+			}
+		],
 		"commands": [
 			{
 				"command": "pysys.refresh",
@@ -22,6 +39,38 @@
 				"icon": {
 					"light": "resources/light/refresh.svg",
 					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "pysys.createProject",
+				"title": "create project",
+				"icon": {
+					"light": "resources/light/library_add.svg",
+					"dark": "resources/dark/library_add.svg"
+				}
+			},
+			{
+				"command": "pysys.createTest",
+				"title": "create test",
+				"icon": {
+					"light": "resources/light/add.svg",
+					"dark": "resources/dark/add.svg"
+				}
+			},
+			{
+				"command": "pysys.editProject",
+				"title": "edit project",
+				"icon": {
+					"light": "resources/light/edit.svg",
+					"dark": "resources/dark/edit.svg"
+				}
+			},
+			{
+				"command": "pysys.runProject",
+				"title": "run all test cases",
+				"icon": {
+					"light": "resources/light/play_arrow.svg",
+					"dark": "resources/dark/play_arrow.svg"
 				}
 			}
 		],
@@ -42,6 +91,26 @@
 				}
 			],
 			"view/item/context": [
+				{
+					"when": "view == pysysProjects && viewItem == project",
+					"command": "pysys.runProject",
+					"group": "inline@3"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == project",
+					"command": "pysys.editProject",
+					"group": "inline@2"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == workspace",
+					"command": "pysys.createProject",
+					"group": "inline@1"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == project",
+					"command": "pysys.createTest",
+					"group": "inline@1"
+				}
 			]
 		  }
 	},

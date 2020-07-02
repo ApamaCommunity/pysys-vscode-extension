@@ -6,6 +6,7 @@ export interface PysysTreeItem {
     collapsibleState: vscode.TreeItemCollapsibleState;
     ws: vscode.WorkspaceFolder;
     items: PysysTreeItem[];
+    contextValue: string;
 }
 
 export class PysysWorkspace extends vscode.TreeItem implements PysysTreeItem {
@@ -21,6 +22,7 @@ export class PysysWorkspace extends vscode.TreeItem implements PysysTreeItem {
     }
 
     items: PysysProject[] = [];
+    contextValue = 'workspace';
 
     async scanProjects(): Promise<PysysProject[]> {
 
@@ -54,6 +56,7 @@ export class PysysProject extends vscode.TreeItem implements PysysTreeItem {
     }
 
     items: PysysTest[] = [];
+    contextValue: string = "project";
 
     async scanTests(): Promise<PysysTest[]> {
 
@@ -85,6 +88,6 @@ export class PysysTest extends vscode.TreeItem implements PysysTreeItem {
     ) {
         super(label, collapsibleState);
     }
-
     items: PysysTreeItem[] = [];
+    contextValue = "test";
 }
