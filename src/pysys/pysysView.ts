@@ -50,7 +50,13 @@ export class PysysProjectView implements vscode.TreeDataProvider<IPysysTreeItem>
                             .map(x => x[0])
                         ];
 
-                        const result : string | undefined = await vscode.window.showQuickPick(directories, {
+                    // todo: it would be good to select the "add new directory" as a default option
+                    // i believe that this is possible with the QuickPickItem which has a property
+                    // "picked?" which we can set on one option to indicate it is the initially chosen value
+                    // i think let directories: string[] would be let directories: QuickPickItem[]
+                    // might not need placeholder then...
+
+                    const result : string | undefined = await vscode.window.showQuickPick(directories, {
                             placeHolder: "Choose directory for pysys project"
                         });
 
@@ -69,7 +75,7 @@ export class PysysProjectView implements vscode.TreeDataProvider<IPysysTreeItem>
                                 if(result) { projectDir = path.join(folder.uri.fsPath,result); }
                             }
 
-                            let makeProjectCmd : PysysRunner= new PysysRunner("makeProject", "python3 -m pysys", this.logger);
+                            let makeProjectCmd : PysysRunner= new PysysRunner("makeProject", "python -m pysys", this.logger);
                             let makeProject : string = await makeProjectCmd.run(projectDir,["makeproject"]);
 
                             // we need to do some error checking on the command - we should check for errors in the
@@ -87,7 +93,7 @@ export class PysysProjectView implements vscode.TreeDataProvider<IPysysTreeItem>
                         });
 
                         if(testName) {
-                            let makeTestCmd : PysysRunner= new PysysRunner("makeTest", "python3 -m pysys", this.logger);
+                            let makeTestCmd : PysysRunner= new PysysRunner("makeTest", "python -m pysys", this.logger);
                             let makeTest : string = await makeTestCmd.run(`${element.ws.uri.fsPath}/${element.label}`,[`make ${testName}`]);
 
                             // we need to do some error checking on the command - we should check for errors in the
@@ -142,7 +148,7 @@ export class PysysProjectView implements vscode.TreeDataProvider<IPysysTreeItem>
                 folder,
                 "pysys run",
                 "pysys",
-                new vscode.ShellExecution("python3 -m pysys run", localargs, {
+                new vscode.ShellExecution("python -m pysys run", localargs, {
                     cwd
                 }),
                 ["pysys"]
