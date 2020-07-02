@@ -15,16 +15,19 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
-		"taskDefinitions": [ 
+		"taskDefinitions": [
 			{
-			"type": "pysys"
+				"type": "pysys"
 			}
 		],
 		"problemMatchers": [
 			{
 				"name": "pysys",
 				"owner": "pysys",
-				"fileLocation": ["relative", "${workspaceFolder}"],
+				"fileLocation": [
+					"relative",
+					"${workspaceFolder}"
+				],
 				"pattern": {
 					"regexp": "(FAILED)\\:\\s+([a-zA-Z0-9_\r\n]*)",
 					"file": 2,
@@ -77,8 +80,8 @@
 		"views": {
 			"explorer": [
 				{
-				"id": "pysysProjects",
-				"name": "PySys Projects"
+					"id": "pysysProjects",
+					"name": "PySys Projects"
 				}
 			]
 		},
@@ -112,7 +115,7 @@
 					"group": "inline@1"
 				}
 			]
-		  }
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",

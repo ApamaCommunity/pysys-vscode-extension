@@ -1,5 +1,5 @@
-import * as vscode from 'vscode';
-import * as path from 'path';
+import * as vscode from "vscode";
+import * as path from "path";
 
 export interface PysysTreeItem {
     label: string;
@@ -11,7 +11,7 @@ export interface PysysTreeItem {
 
 export class PysysWorkspace extends vscode.TreeItem implements PysysTreeItem {
 
-    private workspaceList: PysysWorkspace[] = []; 
+    private workspaceList: PysysWorkspace[] = [];
 
     constructor(
         public readonly label: string,
@@ -22,28 +22,41 @@ export class PysysWorkspace extends vscode.TreeItem implements PysysTreeItem {
     }
 
     items: PysysProject[] = [];
-    contextValue = 'workspace';
+    contextValue = "workspace";
 
     async scanProjects(): Promise<PysysProject[]> {
 
-		let result: PysysProject[] = [];
+        let result: PysysProject[] = [];
 
-        let projectsPattern: vscode.RelativePattern = new vscode.RelativePattern( this.ws , "**/pysysproject.xml" );
-        
-		let projectNames = await vscode.workspace.findFiles( projectsPattern);
-		
-		for (let index = 0; index < projectNames.length; index++) {
-			const project: vscode.Uri = projectNames[index];
-			let current: PysysProject = new PysysProject(
-				path.relative(this.ws.uri.fsPath, path.dirname(project.fsPath)),
+        let projectsPattern: vscode.RelativePattern = new vscode.RelativePattern(this.ws, "**/pysysproject.xml");
+
+        let projectNames: vscode.Uri[] = await vscode.workspace.findFiles(projectsPattern);
+
+        for (let index: number = 0; index < projectNames.length; index++) {
+            const project: vscode.Uri = projectNames[index];
+            let current: PysysProject = new PysysProject(
+                path.relative(this.ws.uri.fsPath, path.dirname(project.fsPath)),
                 vscode.TreeItemCollapsibleState.Collapsed,
                 this.ws
-			);
-			result.push(current);
+            );
+            result.push(current);
         }
-        
-		return result;
-	}
+
+        return result;
+    }
+}
+
+
+export class PysysTest extends vscode.TreeItem implements PysysTreeItem {
+    constructor(
+        public readonly label: string,
+        public collapsibleState: vscode.TreeItemCollapsibleState,
+        public ws: vscode.WorkspaceFolder,
+    ) {
+        super(label, collapsibleState);
+    }
+    items: PysysTreeItem[] = [];
+    contextValue = "test";
 }
 
 export class PysysProject extends vscode.TreeItem implements PysysTreeItem {
@@ -60,34 +73,23 @@ export class PysysProject extends vscode.TreeItem implements PysysTreeItem {
 
     async scanTests(): Promise<PysysTest[]> {
 
-		let result: PysysTest[] = [];
+        let result: PysysTest[] = [];
 
-        let projectsPattern: vscode.RelativePattern = new vscode.RelativePattern( this.ws , `**/${this.label}/**/pysystest.xml` );
-        
-		let projectNames = await vscode.workspace.findFiles( projectsPattern);
-		
-		for (let index = 0; index < projectNames.length; index++) {
-			const project: vscode.Uri = projectNames[index];
-			let current: PysysTest = new PysysTest(
-				path.relative(path.join(this.ws.uri.fsPath, this.label), path.dirname(project.fsPath)),
+        let projectsPattern: vscode.RelativePattern = new vscode.RelativePattern(this.ws, `**/${this.label}/**/pysystest.xml`);
+
+        let projectNames: vscode.Uri[] = await vscode.workspace.findFiles(projectsPattern);
+
+        for (let index: number = 0; index < projectNames.length; index++) {
+            const project: vscode.Uri = projectNames[index];
+            let current: PysysTest = new PysysTest(
+                path.relative(path.join(this.ws.uri.fsPath, this.label), path.dirname(project.fsPath)),
                 vscode.TreeItemCollapsibleState.None,
                 this.ws
-			);
-			result.push(current);
+            );
+            result.push(current);
         }
-        
-		return result;
-	}
+
+        return result;
+    }
 }
 
-export class PysysTest extends vscode.TreeItem implements PysysTreeItem {
-    constructor(
-        public readonly label: string,
-        public collapsibleState: vscode.TreeItemCollapsibleState,
-        public ws: vscode.WorkspaceFolder,
-    ) {
-        super(label, collapsibleState);
-    }
-    items: PysysTreeItem[] = [];
-    contextValue = "test";
-}
