@@ -10,16 +10,40 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:pysys-vscode-extension.helloWorld"
+		"onCommand:pysys-vscode-extension.helloWorld",
+		"onView:pysysProjects"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "pysys-vscode-extension.helloWorld",
-				"title": "Hello World"
+				"command": "pysys.refresh",
+				"title": "refresh",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
 			}
-		]
+		],
+		"views": {
+			"explorer": [
+				{
+				"id": "pysysProjects",
+				"name": "PySys Projects"
+				}
+			]
+		},
+		"menus": {
+			"view/title": [
+				{
+					"when": "view == pysysProjects",
+					"command": "pysys.refresh",
+					"group": "navigation"
+				}
+			],
+			"view/item/context": [
+			]
+		  }
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
