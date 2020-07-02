@@ -1,15 +1,15 @@
 import * as vscode from "vscode";
-import {PysysTreeItem, PysysProject, PysysWorkspace, PysysTest} from "./pysys";
+import {IPysysTreeItem, PysysProject, PysysWorkspace, PysysTest} from "./pysys";
 import {PysysRunner} from "../utils/pysysRunner";
 import * as path from "path";
 import { promises } from "dns";
 import { O_DIRECTORY } from "constants";
 import { dir } from "console";
 
-export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> {
+export class PysysProjectView implements vscode.TreeDataProvider<IPysysTreeItem> {
 
-    private _onDidChangeTreeData: vscode.EventEmitter<PysysTreeItem | undefined> = new vscode.EventEmitter<PysysTreeItem | undefined>();
-	readonly onDidChangeTreeData: vscode.Event<PysysTreeItem | undefined> = this._onDidChangeTreeData.event;
+    private _onDidChangeTreeData: vscode.EventEmitter<IPysysTreeItem | undefined> = new vscode.EventEmitter<IPysysTreeItem | undefined>();
+	readonly onDidChangeTreeData: vscode.Event<IPysysTreeItem | undefined> = this._onDidChangeTreeData.event;
 
     private workspaceList: PysysWorkspace[] = [];
 
@@ -153,7 +153,7 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
 		return undefined;
 	}
 
-    getTreeItem(element: PysysTreeItem): vscode.TreeItem {
+    getTreeItem(element: IPysysTreeItem): vscode.TreeItem {
         return element;
     }
 
