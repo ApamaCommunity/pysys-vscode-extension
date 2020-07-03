@@ -40,43 +40,49 @@ export class PysysProjectView implements vscode.TreeDataProvider<IPysysTreeItem>
 
                     if (folder !== undefined) {
                         let ws_contents : [string,vscode.FileType][] = await vscode.workspace.fs.readDirectory(folder.uri);
+                        const newDirLabel: string = "$(file-directory-create) add new directory"
 
-                        let directories: string[] = ["add new directory",
+                        let directories: vscode.QuickPickItem[] = [{
+                                label: newDirLabel,
+                                picked: true
+                            },
                             ...ws_contents.filter( (curr) => {
                                 if (curr[1] === vscode.FileType.Directory) {
                                     return curr[0];
                                 }
                             })
-                            .map(x => x[0])
+                            .map(x => {
+                                return {
+                                        label: `$(file-directory) ${x[0]}`,
+                                    }
+                                })
                         ];
 
-                    // todo: it would be good to select the "add new directory" as a default option
-                    // i believe that this is possible with the QuickPickItem which has a property
-                    // "picked?" which we can set on one option to indicate it is the initially chosen value
-                    // i think let directories: string[] would be let directories: QuickPickItem[]
-                    // might not need placeholder then...
-
-                    const result : string | undefined = await vscode.window.showQuickPick(directories, {
-                            placeHolder: "Choose directory for pysys project"
+                        const result : vscode.QuickPickItem | undefined = await vscode.window.showQuickPick(directories, {
+                            placeHolder: "Pick directory",
+                            ignoreFocusOut: true,
                         });
 
                         if(result) {
-                            let projectDir : string = folder.uri.fsPath;
+                            let projectDir = undefined;
 
-                            if(result === "add new directory") {
+                            if(result.label === newDirLabel) {
                                 const dirName : string | undefined = await vscode.window.showInputBox({
-                                    placeHolder: "directory name"
+                                    placeHolder: "Directory name",
+                                    ignoreFocusOut: true
                                 });
                                 if (dirName) {
                                     projectDir = path.join(folder.uri.fsPath,dirName);
                                     await vscode.workspace.fs.createDirectory(vscode.Uri.file(projectDir));
                                 }
                             } else {
-                                if(result) { projectDir = path.join(folder.uri.fsPath,result); }
+                                if(result) { projectDir = path.join(folder.uri.fsPath,result.label); }
                             }
 
-                            let makeProjectCmd : PysysRunner= new PysysRunner("makeProject", "python -m pysys", this.logger);
-                            let makeProject : string = await makeProjectCmd.run(projectDir,["makeproject"]);
+                            if(projectDir) {
+                                let makeProjectCmd : PysysRunner= new PysysRunner("makeProject", "python3 -m pysys", this.logger);
+                                let makeProject : string = await makeProjectCmd.run(projectDir,["makeproject"]);
+                            }
 
                             // we need to do some error checking on the command - we should check for errors in the
                             // make project output and do something if there are any
@@ -93,7 +99,7 @@ export class PysysProjectView implements vscode.TreeDataProvider<IPysysTreeItem>
                         });
 
                         if(testName) {
-                            let makeTestCmd : PysysRunner= new PysysRunner("makeTest", "python -m pysys", this.logger);
+                            let makeTestCmd : PysysRunner= new PysysRunner("makeTest", "python3 -m pysys", this.logger);
                             let makeTest : string = await makeTestCmd.run(`${element.ws.uri.fsPath}/${element.label}`,[`make ${testName}`]);
 
                             // we need to do some error checking on the command - we should check for errors in the
@@ -107,6 +113,16 @@ export class PysysProjectView implements vscode.TreeDataProvider<IPysysTreeItem>
                     }
                 }),
 
+                vscode.commands.registerCommand("pysys.editProject", async (element?: PysysProject) => {
+                    if(element) {
+                        const setting: vscode.Uri = vscode.Uri.parse(`${element.ws.uri.fsPath}/${element.label}/pysysproject.xml`)
+                        vscode.workspace.openTextDocument(setting)
+                            .then(doc => {
+                                vscode.window.showTextDocument(doc)
+                            });
+                    }
+                }),
+
                 vscode.commands.registerCommand("pysys.runProject", async (element?: PysysProject) => {
                     if(element) {
                         const task : vscode.Task | undefined =
@@ -115,7 +131,27 @@ export class PysysProjectView implements vscode.TreeDataProvider<IPysysTreeItem>
                             await vscode.tasks.executeTask(task);
                         }
                     }
-                })
+                }),
+
+                vscode.commands.registerCommand("pysys.editTest", async (element?: PysysTest) => {
+                    if(element) {
+                        const setting: vscode.Uri = vscode.Uri.parse(`${element.ws.uri.fsPath}/${element.parent}/${element.label}/run.py`)
+                        vscode.workspace.openTextDocument(setting)
+                            .then(doc => {
+                                vscode.window.showTextDocument(doc)
+                            });
+                    }
+                }),
+
+                vscode.commands.registerCommand("pysys.runTest", async (element?: PysysTest) => {
+                    if(element) {
+                        const task : vscode.Task | undefined =
+                            await this.runPysysTest(`${element.ws.uri.fsPath}/${element.parent}`, element.ws, [element.label]);
+                        if(task) {
+                            await vscode.tasks.executeTask(task);
+                        }
+                    }
+                }),
             ]);
         }
     }
@@ -148,7 +184,7 @@ export class PysysProjectView implements vscode.TreeDataProvider<IPysysTreeItem>
                 folder,
                 "pysys run",
                 "pysys",
-                new vscode.ShellExecution("python -m pysys run", localargs, {
+                new vscode.ShellExecution(`python3 -m pysys run ${localargs.join(" ")}`, [], {
                     cwd
                 }),
                 ["pysys"]
@@ -163,7 +199,7 @@ export class PysysProjectView implements vscode.TreeDataProvider<IPysysTreeItem>
         return element;
     }
 
-    async getChildren(element?: PysysProject): Promise<undefined | PysysWorkspace[] | PysysProject[] | PysysTest[]> {
+    async getChildren(element?: PysysProject | PysysWorkspace): Promise<undefined | PysysWorkspace[] | PysysProject[] | PysysTest[]> {
         if(element instanceof PysysWorkspace) {
             element.items = await element.scanProjects();
             return element.items;

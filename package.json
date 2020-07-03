@@ -76,8 +76,24 @@
 				}
 			},
 			{
+				"command": "pysys.editTest",
+				"title": "edit test",
+				"icon": {
+					"light": "resources/light/edit.svg",
+					"dark": "resources/dark/edit.svg"
+				}
+			},
+			{
 				"command": "pysys.runProject",
 				"title": "run all test cases",
+				"icon": {
+					"light": "resources/light/play_arrow.svg",
+					"dark": "resources/dark/play_arrow.svg"
+				}
+			},
+			{
+				"command": "pysys.runTest",
+				"title": "run test",
 				"icon": {
 					"light": "resources/light/play_arrow.svg",
 					"dark": "resources/dark/play_arrow.svg"
@@ -120,6 +136,16 @@
 					"when": "view == pysysProjects && viewItem == project",
 					"command": "pysys.createTest",
 					"group": "inline@1"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == test",
+					"command": "pysys.editTest",
+					"group": "inline@1"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == test",
+					"command": "pysys.runTest",
+					"group": "inline@2"
 				}
 			]
 		}

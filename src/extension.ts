@@ -15,7 +15,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 	// here we check for python and pysys - extracting versions
 	let pythonVersion: string = "";
 	let pysysVersion: string = "";
-	let versionCmd: PysysRunner = new PysysRunner("version", "python -m pysys", logger);
+	let versionCmd: PysysRunner = new PysysRunner("version", "python3 -m pysys", logger);
 	let versionOutput: any = await versionCmd.run(".",[]);
 	let versionlines: string[]  = versionOutput.stdout.split("\n");
 	const pat : RegExp = new RegExp(/PySys.System.Test.Framework\s+\(version\s+([^\s]+)\s+on\s+Python\s+([^)]+)\)/);

@@ -6,6 +6,7 @@ export interface IPysysTreeItem {
     collapsibleState: vscode.TreeItemCollapsibleState;
     ws: vscode.WorkspaceFolder;
     items: IPysysTreeItem[];
+    parent: String | undefined;
     contextValue: string;
 }
 
@@ -14,6 +15,7 @@ export class PysysTest extends vscode.TreeItem implements IPysysTreeItem {
         public readonly label: string,
         public collapsibleState: vscode.TreeItemCollapsibleState,
         public ws: vscode.WorkspaceFolder,
+        public parent: String
     ) {
         super(label, collapsibleState);
     }
@@ -26,6 +28,7 @@ export class PysysProject extends vscode.TreeItem implements IPysysTreeItem {
         public readonly label: string,
         public collapsibleState: vscode.TreeItemCollapsibleState,
         public ws: vscode.WorkspaceFolder,
+        public parent: String
     ) {
         super(label, collapsibleState);
     }
@@ -46,7 +49,8 @@ export class PysysProject extends vscode.TreeItem implements IPysysTreeItem {
             let current: PysysTest = new PysysTest(
                 path.relative(path.join(this.ws.uri.fsPath, this.label), path.dirname(project.fsPath)),
                 vscode.TreeItemCollapsibleState.None,
-                this.ws
+                this.ws,
+                this.label
             );
             result.push(current);
         }
@@ -71,6 +75,7 @@ export class PysysWorkspace extends vscode.TreeItem implements IPysysTreeItem {
 
     items: PysysProject[] = [];
     contextValue = "workspace";
+    parent = undefined;
 
     async scanProjects(): Promise<PysysProject[]> {
 
@@ -85,7 +90,8 @@ export class PysysWorkspace extends vscode.TreeItem implements IPysysTreeItem {
             let current: PysysProject = new PysysProject(
                 path.relative(this.ws.uri.fsPath, path.dirname(project.fsPath)),
                 vscode.TreeItemCollapsibleState.Collapsed,
-                this.ws
+                this.ws,
+                this.label
             );
             result.push(current);
         }
