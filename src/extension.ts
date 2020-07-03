@@ -3,7 +3,7 @@ import semver = require("semver");
 
 import {PysysProjectView} from "./pysys/pysysView";
 import { PysysRunner } from "./utils/pysysRunner";
-
+import { PysysTaskProvider } from "./utils/pysysTaskProvider";
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
 
@@ -51,6 +51,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 			"pysysProjects",
 			new PysysProjectView(logger, myClonedArray, context)
 		);
+		
+		const taskprov = new PysysTaskProvider();
+		context.subscriptions.push(vscode.tasks.registerTaskProvider("pysys", taskprov))
 	}
 }
 

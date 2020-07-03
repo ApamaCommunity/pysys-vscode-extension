@@ -21,6 +21,11 @@ export class PysysTest extends vscode.TreeItem implements IPysysTreeItem {
     }
     items: IPysysTreeItem[] = [];
     contextValue = "test";
+
+    iconPath = {
+        light: path.join(__filename, '..', '..', '..', 'resources', 'light', 'power.svg'),
+        dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', 'power.svg')
+    };
 }
 
 export class PysysProject extends vscode.TreeItem implements IPysysTreeItem {
@@ -35,6 +40,11 @@ export class PysysProject extends vscode.TreeItem implements IPysysTreeItem {
 
     items: PysysTest[] = [];
     contextValue: string = "project";
+
+    iconPath = {
+        light: path.join(__filename, '..', '..', '..', 'resources', 'light', 'project.svg'),
+        dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', 'project.svg')
+    };
 
     async scanTests(): Promise<PysysTest[]> {
 
@@ -76,6 +86,11 @@ export class PysysWorkspace extends vscode.TreeItem implements IPysysTreeItem {
     items: PysysProject[] = [];
     contextValue = "workspace";
     parent = undefined;
+
+    iconPath = {
+        light: path.join(__filename, '..', '..', '..', 'resources', 'light', 'folder.svg'),
+        dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', 'folder.svg')
+    };
 
     async scanProjects(): Promise<PysysProject[]> {
 

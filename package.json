@@ -24,7 +24,16 @@
 	"contributes": {
 		"taskDefinitions": [
 			{
-				"type": "pysys"
+				"type": "pysys",
+				"required": [
+					"task"
+				],
+				"properties": {
+					"task": {
+						"type": "string",
+						"description": "The pysys task to customize"
+					}
+				}
 			}
 		],
 		"problemMatchers": [
@@ -92,6 +101,14 @@
 				}
 			},
 			{
+				"command": "pysys.runProjectCustom",
+				"title": "run with custom arguments",
+				"icon": {
+					"light": "resources/light/double_arrow.svg",
+					"dark": "resources/dark/double_arrow.svg"
+				}
+			},
+			{
 				"command": "pysys.runTest",
 				"title": "run test",
 				"icon": {
@@ -120,6 +137,11 @@
 				{
 					"when": "view == pysysProjects && viewItem == project",
 					"command": "pysys.runProject",
+					"group": "inline@4"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == project",
+					"command": "pysys.runProjectCustom",
 					"group": "inline@3"
 				},
 				{

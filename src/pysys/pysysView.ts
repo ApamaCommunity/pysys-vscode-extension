@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import {IPysysTreeItem, PysysProject, PysysWorkspace, PysysTest} from "./pysys";
 import {PysysRunner} from "../utils/pysysRunner";
+import {PysysTaskProvider} from "../utils/pysysTaskProvider";
 import * as path from "path";
 import { promises } from "dns";
 import { O_DIRECTORY } from "constants";
@@ -124,13 +125,18 @@ export class PysysProjectView implements vscode.TreeDataProvider<IPysysTreeItem>
                 }),
 
                 vscode.commands.registerCommand("pysys.runProject", async (element?: PysysProject) => {
+                    const taskProvider = new PysysTaskProvider();
                     if(element) {
                         const task : vscode.Task | undefined =
-                            await this.runPysysTest(`${element.ws.uri.fsPath}/${element.label}`, element.ws);
+                            await taskProvider.runPysysTest(`${element.ws.uri.fsPath}/${element.label}`, element.ws);
                         if(task) {
                             await vscode.tasks.executeTask(task);
                         }
                     }
+                }),
+
+                vscode.commands.registerCommand("pysys.runProjectCustom", async (element?: PysysProject) => {
+                    //todo
                 }),
 
                 vscode.commands.registerCommand("pysys.editTest", async (element?: PysysTest) => {
@@ -144,9 +150,10 @@ export class PysysProjectView implements vscode.TreeDataProvider<IPysysTreeItem>
                 }),
 
                 vscode.commands.registerCommand("pysys.runTest", async (element?: PysysTest) => {
+                    const taskProvider = new PysysTaskProvider();
                     if(element) {
                         const task : vscode.Task | undefined =
-                            await this.runPysysTest(`${element.ws.uri.fsPath}/${element.parent}`, element.ws, [element.label]);
+                            await taskProvider.runPysysTest(`${element.ws.uri.fsPath}/${element.parent}`, element.ws, [element.label]);
                         if(task) {
                             await vscode.tasks.executeTask(task);
                         }
@@ -160,40 +167,6 @@ export class PysysProjectView implements vscode.TreeDataProvider<IPysysTreeItem>
 		this._onDidChangeTreeData.fire(undefined);
     }
 
-    async runPysysTest(cwd: string, workspace?: vscode.WorkspaceFolder, extraargs?:string[]): Promise<vscode.Task | undefined> {
-		// let localargs : string[] = this.config.args.concat(['-p',this.config.port.toString()]);
-        // console.log(extraargs);
-        let localargs: string[] = [];
-		if( extraargs ) {
-		    localargs = extraargs;
-        }
-
-        let folder: vscode.WorkspaceFolder | undefined;
-        if(workspace) {
-            folder = workspace;
-        } else {
-            if( vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length === 1) {
-                folder = vscode.workspace.workspaceFolders[0];
-            } else {
-                folder = await vscode.window.showWorkspaceFolderPick();
-            }
-        }
-        if(folder) {
-            let task : vscode.Task = new vscode.Task(
-                {type: "shell", task: ""},
-                folder,
-                "pysys run",
-                "pysys",
-                new vscode.ShellExecution(`python3 -m pysys run ${localargs.join(" ")}`, [], {
-                    cwd
-                }),
-                ["pysys"]
-            );
-            task.group = "test";
-            return task;
-        }
-		return undefined;
-	}
 
     getTreeItem(element: IPysysTreeItem): vscode.TreeItem {
         return element;
