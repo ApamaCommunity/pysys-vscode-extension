@@ -22,6 +22,15 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+		"configuration": {
+			"title": "Pysys",
+			"properties": {
+				"pysys.defaultInterpreterPath": {
+					"type": "string",
+					"description": "Path to Pysys, can be modified to include a full path"
+				}
+			}
+		},
 		"taskDefinitions": [
 			{
 				"type": "pysys",
@@ -32,6 +41,18 @@
 					"task": {
 						"type": "string",
 						"description": "The pysys task to customize"
+					},
+					"cwd": {
+						"type": "string",
+						"description": "current working directory to run task from"
+					},
+					"project": {
+						"type": "string",
+						"description": "project for which to run task"
+					},
+					"extraargs": {
+						"type": "array",
+						"description": "arguments to run task with"
 					}
 				}
 			}
@@ -115,6 +136,30 @@
 					"light": "resources/light/play_arrow.svg",
 					"dark": "resources/dark/play_arrow.svg"
 				}
+			},
+			{
+				"command": "pysys.openTaskConfig",
+				"title": "configure tasks",
+				"icon": {
+					"light": "resources/light/settings.svg",
+					"dark": "resources/dark/settings.svg"
+				}
+			},
+			{
+				"command": "pysys.runDirectory",
+				"title": "run tests in directory",
+				"icon": {
+					"light": "resources/light/play_arrow.svg",
+					"dark": "resources/dark/play_arrow.svg"
+				}
+			},
+			{
+				"command": "pysys.runDirectoryCustom",
+				"title": "run tests in directory with custom parameters",
+				"icon": {
+					"light": "resources/light/double_arrow.svg",
+					"dark": "resources/dark/double_arrow.svg"
+				}
 			}
 		],
 		"views": {
@@ -152,6 +197,11 @@
 				{
 					"when": "view == pysysProjects && viewItem == workspace",
 					"command": "pysys.createProject",
+					"group": "inline@2"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == workspace",
+					"command": "pysys.openTaskConfig",
 					"group": "inline@1"
 				},
 				{
@@ -168,6 +218,21 @@
 					"when": "view == pysysProjects && viewItem == test",
 					"command": "pysys.runTest",
 					"group": "inline@2"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == directory",
+					"command": "pysys.runDirectory",
+					"group": "inline@2"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == directory",
+					"command": "pysys.runDirectoryCustom",
+					"group": "inline@1"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == directory",
+					"command": "pysys.createTest",
+					"group": "inline@1"
 				}
 			]
 		}
