@@ -69,7 +69,7 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
                                 if (folder !== undefined) {
                                     projectDir = await pickDirectory(vscode.Uri.file(path.join(folder.uri.fsPath, element.label)));
                                 }
-                            } else {
+                            } else if(result == "Add test") {
                                 projectDir = `${element.fsPath}`;
                             }
                         } else {
@@ -190,7 +190,6 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
         }
 
         else if(element instanceof PysysDirectory) {
-            element.items = await element.scanTests();
             return element.items;
         }
 
