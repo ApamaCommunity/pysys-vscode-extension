@@ -13,10 +13,10 @@ export async function pickWorkspaceFolder(): Promise<vscode.WorkspaceFolder | un
 
 export async function pickDirectory(folder: vscode.Uri): Promise<string | undefined> {
     let ws_contents : [string,vscode.FileType, boolean?][] = await vscode.workspace.fs.readDirectory(folder);
-    const newDirLabel: string = "$(file-directory-create) add new directory"
+    const newDirLabel: string = "$(file-directory-create) add new directory";
 
     for(let item of ws_contents) {
-        const isProject = await folderIsPysys(vscode.Uri.file(`${folder.fsPath}/${item[0]}`))
+        const isProject = await folderIsPysys(vscode.Uri.file(`${folder.fsPath}/${item[0]}`));
         item.push(isProject);
     }
 
@@ -63,12 +63,12 @@ async function folderIsPysys(folder: vscode.Uri): Promise<boolean | undefined> {
         const contents : [string,vscode.FileType][] = await vscode.workspace.fs.readDirectory(folder);
         for (let item of contents) {
             if(item[0] === "pysysproject.xml" || item[0] === "pysystest.xml") {
-                return true
+                return true;
             }
         }
-        return false
+        return false;
     } catch (e) {
-        return undefined
+        return undefined;
     }
     
 }
