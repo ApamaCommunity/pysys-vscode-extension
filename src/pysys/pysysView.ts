@@ -106,11 +106,12 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
 
                 vscode.commands.registerCommand("pysys.editProject", async (element?: PysysProject) => {
                     if(element) {
-                        const setting: vscode.Uri = vscode.Uri.parse(`${element.fsPath}/pysysproject.xml`);
-                        vscode.workspace.openTextDocument(setting)
-                            .then(doc => {
-                                vscode.window.showTextDocument(doc);
-                            });
+                        //const setting: vscode.Uri = vscode.Uri.parse(`${element.fsPath}/pysysproject.xml`);
+                        const setting: vscode.Uri = vscode.Uri.parse(path.join(element.fsPath, 'pysysproject.xml'));
+                        let doc: vscode.TextDocument = await vscode.workspace.openTextDocument(setting.fsPath);
+                        if( doc ) {
+                            vscode.window.showTextDocument(doc);
+                        }
                     }
                 }),
 
@@ -132,11 +133,11 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
 
                 vscode.commands.registerCommand("pysys.editTest", async (element?: PysysTest) => {
                     if(element) {
-                        const setting: vscode.Uri = vscode.Uri.parse(`${element.fsPath}/run.py`);
-                        vscode.workspace.openTextDocument(setting)
-                            .then(doc => {
-                                vscode.window.showTextDocument(doc);
-                            });
+                        const setting: vscode.Uri = vscode.Uri.parse(path.join(element.fsPath, 'run.py'));
+                        let doc: vscode.TextDocument = await vscode.workspace.openTextDocument(setting.fsPath);
+                        if( doc ) {
+                            vscode.window.showTextDocument(doc);
+                        }
                     }
                 }),
 
