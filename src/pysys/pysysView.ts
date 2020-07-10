@@ -29,6 +29,12 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
         workspaces.forEach( ws => this.workspaceList.push(new PysysWorkspace(ws.name,vscode.TreeItemCollapsibleState.Collapsed, ws, ws.uri.fsPath)));
         this.registerCommands();
         this.taskProvider = new PysysTaskProvider(workspaces[0]);
+
+        vscode.workspace.onDidChangeConfiguration(async e => {
+			if(e.affectsConfiguration('pysys.defaultInterpreterPath')) {
+				this.taskProvider = new PysysTaskProvider(workspaces[0]);
+			}
+		});
     }
 
     registerCommands(): void {
@@ -79,43 +85,21 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
 
                 vscode.commands.registerCommand("pysys.createTest", async (element?: PysysProject | PysysDirectory) => {
                     if(element) {
-                        let projectDir;
 
-                        // on the project we can create a test directly under it, or we can create a folder
-                        // that will contain tests - we only allow one level of folders currently 
-                        if(element instanceof PysysProject) {
+                        let projectDir = `${element.fsPath}`;
+                        const testName: string | undefined = await vscode.window.showInputBox({
+                            placeHolder: "Choose a test name"
+                        });
 
-                            const result = await vscode.window.showQuickPick(["Add test", "Pick directory"], {
-                                placeHolder: "Choose an option",
-                                ignoreFocusOut: true,
-                            });
-
-                            if(result === "Pick directory") {
-                                const folder = await pickWorkspaceFolder();
-                                if (folder !== undefined) {
-                                    projectDir = await pickDirectory(vscode.Uri.file(path.join(folder.uri.fsPath, element.label)));
-                                }
-                            } else if(result === "Add test") {
-                                projectDir = `${element.fsPath}`;
+                        if(testName) {
+                            let makeTestCmd : PysysRunner= new PysysRunner("makeTest", `${this.interpreter}`, this.logger);
+                            try {
+                                let makeTest : string = await makeTestCmd.run(`${projectDir}`,[`make ${testName}`]);
+                            } catch (error) {
+                                this.logger.appendLine(error);
                             }
-                        } else {
-                            projectDir = `${element.fsPath}`;
-                        }
-                        if(projectDir) {
-                            const testName: string | undefined = await vscode.window.showInputBox({
-                                placeHolder: "Choose a test name"
-                            });
-    
-                            if(testName) {
-                                let makeTestCmd : PysysRunner= new PysysRunner("makeTest", `${this.interpreter}`, this.logger);
-                                try {
-                                    let makeTest : string = await makeTestCmd.run(`${projectDir}`,[`make ${testName}`]);
-                                } catch (error) {
-                                    this.logger.appendLine(error);
-                                }
-                                
-                                this.refresh();
-                            }
+                            
+                            this.refresh();
                         }
                     }
                 }),
@@ -189,6 +173,26 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
                 vscode.commands.registerCommand("pysys.runDirectoryCustom", async (element?: PysysDirectory) => {
                     if(element) {
                         await this.taskProvider.runCustom(element);
+                    }
+                }),
+
+                vscode.commands.registerCommand("pysys.openShell", async (element?: PysysProject) => {
+                    if(element) {
+                        const terminals = vscode.window.terminals;
+                        const name = `pysys - ${path.relative(element.ws.uri.fsPath, element.fsPath)}`
+
+                        for(let term of terminals) {
+                            if (term.name == name) {
+                                term.show(false);
+                                return
+                            }
+                        }
+                        
+                        const term = vscode.window.createTerminal({
+                            name,
+                            cwd: `${element.fsPath}`
+                        });
+                        term.show(false);
                     }
                 }),
             ]);

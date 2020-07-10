@@ -168,6 +168,14 @@
 					"light": "resources/light/double_arrow.svg",
 					"dark": "resources/dark/double_arrow.svg"
 				}
+			},
+			{
+				"command": "pysys.openShell",
+				"title": "open shell at project",
+				"icon": {
+					"light": "resources/light/code.svg",
+					"dark": "resources/dark/code.svg"
+				}
 			}
 		],
 		"views": {
@@ -189,18 +197,33 @@
 			"view/item/context": [
 				{
 					"when": "view == pysysProjects && viewItem == project",
+					"command": "pysys.openShell",
+					"group": "inline@6"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == project",
 					"command": "pysys.runProject",
-					"group": "inline@4"
+					"group": "inline@5"
 				},
 				{
 					"when": "view == pysysProjects && viewItem == project",
 					"command": "pysys.runProjectCustom",
-					"group": "inline@3"
+					"group": "inline@4"
 				},
 				{
 					"when": "view == pysysProjects && viewItem == project",
 					"command": "pysys.editProject",
+					"group": "inline@3"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == project",
+					"command": "pysys.createDir",
 					"group": "inline@2"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == project",
+					"command": "pysys.createTest",
+					"group": "inline@1"
 				},
 				{
 					"when": "view == pysysProjects && viewItem == workspace",
@@ -210,16 +233,6 @@
 				{
 					"when": "view == pysysProjects && viewItem == workspace",
 					"command": "pysys.openTaskConfig",
-					"group": "inline@1"
-				},
-				{
-					"when": "view == pysysProjects && viewItem == project",
-					"command": "pysys.createDir",
-					"group": "inline@1"
-				},
-				{
-					"when": "view == pysysProjects && viewItem == project",
-					"command": "pysys.createTest",
 					"group": "inline@1"
 				},
 				{
