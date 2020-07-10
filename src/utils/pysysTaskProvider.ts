@@ -39,7 +39,7 @@ export class PysysTaskProvider implements vscode.TaskProvider {
                 })
             );
         }
-        return undefined
+        return undefined;
     }
 
     private runTest() {
@@ -59,17 +59,17 @@ export class PysysTaskProvider implements vscode.TaskProvider {
     }
 
     public async writeTaskConfig(definition: PysysTaskDefinition) {
-        const setting: vscode.Uri = vscode.Uri.parse(`${this.workspace.uri.fsPath}/.vscode/tasks.json`)
+        const setting: vscode.Uri = vscode.Uri.parse(`${this.workspace.uri.fsPath}/.vscode/tasks.json`);
         const config = await vscode.workspace.openTextDocument(setting)
             .then(doc => {
                 const config = JSON.parse(doc.getText());
                 for(let task of config.tasks) {
                     if(task.label === definition.label) {
-                        return
+                        return;
                     }
                 }
                 config.tasks.push(definition);
-                return config
+                return config;
             });
 
         if (config) {
@@ -119,15 +119,15 @@ export class PysysTaskProvider implements vscode.TaskProvider {
         const projectDefinition: string = 
             element instanceof PysysDirectory ? 
             `${element.parent}/${element.label}` : 
-            element.label
+            element.label;
 
         for(let task of tasks) {
             if (task.definition.project === projectDefinition) {
-                args = task.definition.extraargs
+                args = task.definition.extraargs;
             }
         }
 
-        const cwd: string = `${element.ws.uri.fsPath}/${projectDefinition}`
+        const cwd: string = `${element.ws.uri.fsPath}/${projectDefinition}`;
         if(args) {
             const task : vscode.Task | undefined =
                 await this.runPysysTest(cwd, element.ws, args);
@@ -143,7 +143,7 @@ export class PysysTaskProvider implements vscode.TaskProvider {
                 extraargs: [],
                 problemMatcher: ["$pysys"],
                 label: `pysys: run /${projectDefinition}` 
-            }
+            };
 
             const out = await this.writeTaskConfig(definition);
         }

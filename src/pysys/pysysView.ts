@@ -94,8 +94,8 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
                                 placeHolder: "Choose a test name"
                             });
 
-                            if(testName == undefined) {
-                                return
+                            if(testName === undefined) {
+                                return;
                             }
     
                             const namePattern: vscode.RelativePattern = new vscode.RelativePattern(element.parent, `**/${testName}/pysystest.xml`);
@@ -198,12 +198,12 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
                 vscode.commands.registerCommand("pysys.openShell", async (element?: PysysProject) => {
                     if(element) {
                         const terminals = vscode.window.terminals;
-                        const name = `pysys - ${path.relative(element.ws.uri.fsPath, element.fsPath)}`
+                        const name = `pysys - ${path.relative(element.ws.uri.fsPath, element.fsPath)}`;
 
                         for(let term of terminals) {
-                            if (term.name == name) {
+                            if (term.name === name) {
                                 term.show(false);
-                                return
+                                return;
                             }
                         }
 
