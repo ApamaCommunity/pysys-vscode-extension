@@ -65,7 +65,7 @@ export class PysysDirectory extends vscode.TreeItem implements PysysTreeItem {
                     label,
                     vscode.TreeItemCollapsibleState.Collapsed,
                     this.ws,
-                    this.label,
+                    this.parent,
                     `${this.fsPath}/${label}`,
                     []
                 ));
@@ -74,7 +74,7 @@ export class PysysDirectory extends vscode.TreeItem implements PysysTreeItem {
                     label,
                     vscode.TreeItemCollapsibleState.None,
                     this.ws,
-                    this.label,
+                    this.parent,
                     `${this.fsPath}/${label}`
                 ));
             }
@@ -121,7 +121,7 @@ export class PysysProject extends vscode.TreeItem implements PysysTreeItem {
                     label,
                     vscode.TreeItemCollapsibleState.Collapsed,
                     this.ws,
-                    this.label,
+                    this.fsPath,
                     `${this.fsPath}/${label}`,
                     []
                 ));
@@ -130,7 +130,7 @@ export class PysysProject extends vscode.TreeItem implements PysysTreeItem {
                     label,
                     vscode.TreeItemCollapsibleState.None,
                     this.ws,
-                    this.label,
+                    this.fsPath,
                     `${this.fsPath}/${label}`
                 ));
             }
@@ -178,7 +178,7 @@ export class PysysWorkspace extends vscode.TreeItem implements PysysTreeItem {
                 label,
                 vscode.TreeItemCollapsibleState.Collapsed,
                 this.ws,
-                this.label,
+                `${this.fsPath}/${label}`,
                 `${this.fsPath}/${label}`
             );
             result.push(current);

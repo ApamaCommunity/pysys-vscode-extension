@@ -87,10 +87,28 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
                     if(element) {
 
                         let projectDir = `${element.fsPath}`;
-                        const testName: string | undefined = await vscode.window.showInputBox({
-                            placeHolder: "Choose a test name"
-                        });
+                        let askAgain: boolean = false;
+                        let testName: string | undefined;
+                        do {
+                            testName = await vscode.window.showInputBox({
+                                placeHolder: "Choose a test name"
+                            });
 
+                            if(testName == undefined) {
+                                return
+                            }
+    
+                            const namePattern: vscode.RelativePattern = new vscode.RelativePattern(element.parent, `**/${testName}/pysystest.xml`);
+                            const tests: vscode.Uri[] = await vscode.workspace.findFiles(namePattern);
+
+                            askAgain = tests.length > 0 ? true : false;
+
+                            if(askAgain) {
+                                vscode.window.showWarningMessage("test name already exists in project - pick something else");
+                            }
+
+                        } while (askAgain);
+                        
                         if(testName) {
                             let makeTestCmd : PysysRunner= new PysysRunner("makeTest", `${this.interpreter}`, this.logger);
                             try {
@@ -188,7 +206,7 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
                                 return
                             }
                         }
-                        
+
                         const term = vscode.window.createTerminal({
                             name,
                             cwd: `${element.fsPath}`
