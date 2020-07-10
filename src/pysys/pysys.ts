@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import { PysysRunner } from "../utils/pysysRunner";
-import { buildProjectDirectory } from "../utils/fsUtils"
+import { buildProjectDirectory, getStructure, structureType } from "../utils/fsUtils";
 
 export interface PysysTreeItem {
     label: string;
@@ -12,6 +12,7 @@ export interface PysysTreeItem {
     parent: string | undefined;
     contextValue: string;
 }
+
 
 export class PysysTest extends vscode.TreeItem implements PysysTreeItem {
     constructor(
@@ -49,6 +50,39 @@ export class PysysDirectory extends vscode.TreeItem implements PysysTreeItem {
         light: path.join(__filename, '..', '..', '..', 'resources', 'light', 'folder.svg'),
         dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', 'folder.svg')
     };
+
+    async scanTestsAndDirectories(): Promise<(PysysDirectory | PysysTest)[]> {
+
+        const alldirectories : [vscode.Uri , structureType][] = await getStructure(vscode.Uri.file(this.fsPath));
+
+        let result: (PysysDirectory | PysysTest)[] = [];
+
+        let entry : any ; 
+        for(const [u,t]  of  alldirectories) {
+            const label: string = path.basename(u.fsPath);
+            if(t === structureType.directory) {
+                result.push(new PysysDirectory(
+                    label,
+                    vscode.TreeItemCollapsibleState.Collapsed,
+                    this.ws,
+                    this.label,
+                    `${this.fsPath}/${label}`,
+                    []
+                ));
+            } else {
+                result.push(new PysysTest(
+                    label,
+                    vscode.TreeItemCollapsibleState.None,
+                    this.ws,
+                    this.label,
+                    `${this.fsPath}/${label}`
+                ));
+            }
+        }
+
+        return result;
+    }
+
 }
 
 export class PysysProject extends vscode.TreeItem implements PysysTreeItem {
@@ -70,48 +104,42 @@ export class PysysProject extends vscode.TreeItem implements PysysTreeItem {
         dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', 'project.svg')
     };
 
+    
+
     async scanTestsAndDirectories(): Promise<(PysysDirectory | PysysTest)[]> {
-        const directories = await buildProjectDirectory(this);
+
+        //const alldirectories : [vscode.Uri , structureType][] = await getStructure(vscode.Uri.file(path.join(this.ws.uri.fsPath,this.label)));
+        const alldirectories : [vscode.Uri , structureType][] = await getStructure(vscode.Uri.file(this.fsPath));
 
         let result: (PysysDirectory | PysysTest)[] = [];
-        for(let key in directories) {
-            if(key !== ".") {
+
+        let entry : any ; 
+        for(const [u,t]  of  alldirectories) {
+            const label: string = path.basename(u.fsPath);
+            if(t === structureType.directory) {
                 result.push(new PysysDirectory(
-                    key,
+                    label,
                     vscode.TreeItemCollapsibleState.Collapsed,
                     this.ws,
                     this.label,
-                    `${this.fsPath}/${key}`,
+                    `${this.fsPath}/${label}`,
                     []
-                ))
-                for(let test of directories[key]) {
-                    result[result.length-1].items.push(new PysysTest(
-                        test,
-                        vscode.TreeItemCollapsibleState.None,
-                        this.ws,
-                        this.label,
-                        `${this.fsPath}/${key}/${test}`
-                    ))
-                }
+                ));
             } else {
-                for(let test of directories[key]) {
-                    result.push(new PysysTest(
-                        test,
-                        vscode.TreeItemCollapsibleState.None,
-                        this.ws,
-                        this.label,
-                        `${this.fsPath}/${test}`
-                    ))
-                }
-            } 
-            
+                result.push(new PysysTest(
+                    label,
+                    vscode.TreeItemCollapsibleState.None,
+                    this.ws,
+                    this.label,
+                    `${this.fsPath}/${label}`
+                ));
+            }
         }
 
         return result;
     }
+
 }
-
-
 
 export class PysysWorkspace extends vscode.TreeItem implements PysysTreeItem {
 
@@ -159,5 +187,7 @@ export class PysysWorkspace extends vscode.TreeItem implements PysysTreeItem {
         return result;
     }
 }
+
+
 
 

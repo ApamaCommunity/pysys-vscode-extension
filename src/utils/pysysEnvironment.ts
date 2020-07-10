@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import {PysysRunner} from "./pysysRunner";
 
-export class pysysEnvironment {
+export class PysysEnvironment {
     private config: vscode.WorkspaceConfiguration;
 
     constructor (private logger: vscode.OutputChannel) {
@@ -73,14 +73,14 @@ export class pysysEnvironment {
                 "Pysys not found, would you like to install it ?",
                 "Install Pysys", "ignore");   
             
-            if(choice == "Install Pysys") {
+            if(choice === "Install Pysys") {
                 let installCmd : PysysRunner= new PysysRunner("install", `python3 -m pip install`, this.logger);
                 try {
                     let makeProject : string = await installCmd.run(".",["pysys"]);
-                    vscode.window.showInformationMessage("Pysys installed!")
+                    vscode.window.showInformationMessage("Pysys installed!");
                     return true;
                 } catch (e) {
-                    vscode.window.showErrorMessage("Error when installing Pysys")
+                    vscode.window.showErrorMessage("Error when installing Pysys");
                 }
             }
         } catch (e) {

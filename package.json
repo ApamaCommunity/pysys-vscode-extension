@@ -98,6 +98,14 @@
 				}
 			},
 			{
+				"command": "pysys.createDir",
+				"title": "create directory",
+				"icon": {
+					"light": "resources/light/folder.svg",
+					"dark": "resources/dark/folder.svg"
+				}
+			},
+			{
 				"command": "pysys.editProject",
 				"title": "edit project",
 				"icon": {
@@ -206,6 +214,11 @@
 				},
 				{
 					"when": "view == pysysProjects && viewItem == project",
+					"command": "pysys.createDir",
+					"group": "inline@1"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == project",
 					"command": "pysys.createTest",
 					"group": "inline@1"
 				},
@@ -232,6 +245,11 @@
 				{
 					"when": "view == pysysProjects && viewItem == directory",
 					"command": "pysys.createTest",
+					"group": "inline@1"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == directory",
+					"command": "pysys.createDir",
 					"group": "inline@1"
 				}
 			]

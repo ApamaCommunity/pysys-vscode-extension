@@ -3,7 +3,7 @@ import semver = require("semver");
 
 import {PysysProjectView} from "./pysys/pysysView";
 import { PysysRunner } from "./utils/pysysRunner";
-import { pysysEnvironment } from "./utils/pysysEnvironment";
+import { PysysEnvironment } from "./utils/pysysEnvironment";
 import { PysysTaskProvider } from "./utils/pysysTaskProvider";
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
@@ -12,7 +12,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 	logger.show();
 	logger.appendLine("Started Pysys Extension");
 
-	const pysysEnv = new pysysEnvironment(logger);
+	const pysysEnv = new PysysEnvironment(logger);
 
 	// todo: here we need to also check for Apama - we can do this by checking to see if the extension
 	// configuration exists - softwareag.apama.apamahome
@@ -38,7 +38,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 		);
 		
 		const taskprov = new PysysTaskProvider(myClonedArray[0]);
-		context.subscriptions.push(vscode.tasks.registerTaskProvider("pysys", taskprov))
+		context.subscriptions.push(vscode.tasks.registerTaskProvider("pysys", taskprov));
 	}
 }
 

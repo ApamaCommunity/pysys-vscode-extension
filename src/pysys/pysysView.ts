@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import {PysysTreeItem, PysysProject, PysysWorkspace, PysysTest, PysysDirectory} from "./pysys";
 import {PysysRunner} from "../utils/pysysRunner";
 import {PysysTaskProvider, PysysTaskDefinition} from "../utils/pysysTaskProvider";
-import {pickWorkspaceFolder, pickDirectory} from "../utils/fsUtils"
+import {pickWorkspaceFolder, pickDirectory} from "../utils/fsUtils";
 import * as path from "path";
 import { promises } from "dns";
 import { O_DIRECTORY } from "constants";
@@ -53,10 +53,36 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
                     }
                 }),
 
+                vscode.commands.registerCommand("pysys.createDir", async (element?: PysysProject | PysysDirectory) => {
+                    if(element) {
+                        let projectDir;
+
+                        // on the project we can create a test directly under it, or we can create a folder
+                        // that will contain tests (or other directories)
+
+                        projectDir = `${element.fsPath}`; //same for project and directory
+                        if(projectDir) {
+                            
+                            const dirName: string | undefined = await vscode.window.showInputBox({
+                                placeHolder: "enter a directory"
+                            });
+    
+                            if(dirName) {
+
+                                let newDir : vscode.Uri = vscode.Uri.file(path.join(projectDir, dirName) );
+                                vscode.workspace.fs.createDirectory(newDir);
+                                this.refresh();
+                            }
+                        }
+                    }
+                }),
+
                 vscode.commands.registerCommand("pysys.createTest", async (element?: PysysProject | PysysDirectory) => {
                     if(element) {
                         let projectDir;
 
+                        // on the project we can create a test directly under it, or we can create a folder
+                        // that will contain tests - we only allow one level of folders currently 
                         if(element instanceof PysysProject) {
 
                             const result = await vscode.window.showQuickPick(["Add test", "Pick directory"], {
@@ -64,16 +90,16 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
                                 ignoreFocusOut: true,
                             });
 
-                            if(result == "Pick directory") {
+                            if(result === "Pick directory") {
                                 const folder = await pickWorkspaceFolder();
                                 if (folder !== undefined) {
                                     projectDir = await pickDirectory(vscode.Uri.file(path.join(folder.uri.fsPath, element.label)));
                                 }
-                            } else if(result == "Add test") {
+                            } else if(result === "Add test") {
                                 projectDir = `${element.fsPath}`;
                             }
                         } else {
-                            projectDir = `${element.fsPath}`
+                            projectDir = `${element.fsPath}`;
                         }
                         if(projectDir) {
                             const testName: string | undefined = await vscode.window.showInputBox({
@@ -85,7 +111,7 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
                                 try {
                                     let makeTest : string = await makeTestCmd.run(`${projectDir}`,[`make ${testName}`]);
                                 } catch (error) {
-                                    this.logger.appendLine(error)
+                                    this.logger.appendLine(error);
                                 }
                                 
                                 this.refresh();
@@ -96,10 +122,10 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
 
                 vscode.commands.registerCommand("pysys.editProject", async (element?: PysysProject) => {
                     if(element) {
-                        const setting: vscode.Uri = vscode.Uri.parse(`${element.fsPath}/pysysproject.xml`)
+                        const setting: vscode.Uri = vscode.Uri.parse(`${element.fsPath}/pysysproject.xml`);
                         vscode.workspace.openTextDocument(setting)
                             .then(doc => {
-                                vscode.window.showTextDocument(doc)
+                                vscode.window.showTextDocument(doc);
                             });
                     }
                 }),
@@ -122,10 +148,10 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
 
                 vscode.commands.registerCommand("pysys.editTest", async (element?: PysysTest) => {
                     if(element) {
-                        const setting: vscode.Uri = vscode.Uri.parse(`${element.fsPath}/run.py`)
+                        const setting: vscode.Uri = vscode.Uri.parse(`${element.fsPath}/run.py`);
                         vscode.workspace.openTextDocument(setting)
                             .then(doc => {
-                                vscode.window.showTextDocument(doc)
+                                vscode.window.showTextDocument(doc);
                             });
                     }
                 }),
@@ -142,10 +168,10 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
 
                 vscode.commands.registerCommand("pysys.openTaskConfig", async (element?: PysysWorkspace) => {
                     if(element) {
-                        const setting: vscode.Uri = vscode.Uri.parse(`${element.fsPath}/.vscode/tasks.json`)
+                        const setting: vscode.Uri = vscode.Uri.parse(`${element.fsPath}/.vscode/tasks.json`);
                         vscode.workspace.openTextDocument(setting)
                             .then(doc => {
-                                vscode.window.showTextDocument(doc)
+                                vscode.window.showTextDocument(doc);
                             });
                     }
                 }),
@@ -190,6 +216,7 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
         }
 
         else if(element instanceof PysysDirectory) {
+            element.items = await element.scanTestsAndDirectories();
             return element.items;
         }
 
