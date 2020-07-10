@@ -11,18 +11,20 @@ export async function pickWorkspaceFolder(): Promise<vscode.WorkspaceFolder | un
 }
 
 export async function pickDirectory(folder: vscode.Uri): Promise<string | undefined> {
-    let ws_contents : [string,vscode.FileType][] = await vscode.workspace.fs.readDirectory(folder);
+    let ws_contents : [string,vscode.FileType, boolean?][] = await vscode.workspace.fs.readDirectory(folder);
     const newDirLabel: string = "$(file-directory-create) add new directory"
+
+    for(let item of ws_contents) {
+        const isProject = await folderIsPysys(vscode.Uri.file(`${folder.fsPath}/${item[0]}`))
+        item.push(isProject);
+    }
 
     let directories: vscode.QuickPickItem[] = [{
             label: newDirLabel,
             picked: true
         },
-        ...ws_contents.filter( async (curr) => {
-            const isProject = await folderIsProject(vscode.Uri.file(folder.fsPath))
-            if (curr[1] === vscode.FileType.Directory) {
-                return curr[0];
-            }
+        ...ws_contents.filter( (curr) => {
+            return (curr[1] === vscode.FileType.Directory && curr[2] === false);
         })
         .map(x => {
             return {
@@ -55,14 +57,19 @@ export async function pickDirectory(folder: vscode.Uri): Promise<string | undefi
     return projectDir
 }
 
-async function folderIsProject(folder: vscode.Uri): Promise<boolean> {
-    const contents : [string,vscode.FileType][] = await vscode.workspace.fs.readDirectory(folder);
-    for (let item of contents) {
-        if(item[0] === "pysysproject.xml") {
-            return true
+async function folderIsPysys(folder: vscode.Uri): Promise<boolean | undefined> {
+    try {
+        const contents : [string,vscode.FileType][] = await vscode.workspace.fs.readDirectory(folder);
+        for (let item of contents) {
+            if(item[0] === "pysysproject.xml" || item[0] === "pysystest.xml") {
+                return true
+            }
         }
+        return false
+    } catch (e) {
+        return undefined
     }
-    return false
+    
 }
 
 export async function buildProjectDirectory(project: PysysProject): Promise<{[id: string]: string[]}> {
