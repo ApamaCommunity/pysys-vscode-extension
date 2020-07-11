@@ -18,7 +18,8 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onView:pysysProjects"
+		"onView:pysysProjects",
+		"workspaceContains:**/pysysproject.xml"
 	],
 	"main": "./out/extension.js",
 	"contributes": {

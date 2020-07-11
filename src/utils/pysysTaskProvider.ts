@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { config } from "process";
 import { PysysDirectory, PysysProject } from "../pysys/pysys";
+import path = require("path");
 
 export interface PysysTaskDefinition extends vscode.TaskDefinition {
     type: string;
@@ -59,23 +60,40 @@ export class PysysTaskProvider implements vscode.TaskProvider {
     }
 
     public async writeTaskConfig(definition: PysysTaskDefinition) {
-        const setting: vscode.Uri = vscode.Uri.parse(`${this.workspace.uri.fsPath}/.vscode/tasks.json`);
-        const config = await vscode.workspace.openTextDocument(setting)
-            .then(doc => {
-                const config = JSON.parse(doc.getText());
-                for(let task of config.tasks) {
-                    if(task.label === definition.label) {
-                        return;
-                    }
-                }
-                config.tasks.push(definition);
-                return config;
-            });
+        const taskFile: string = path.join(this.workspace.uri.fsPath,'.vscode','tasks.json');
+        const taskFileURI = vscode.Uri.file(taskFile);
+        let tfExists: boolean;
+        let contents: string = '{\"version\": \"2.0.0\",\"tasks\": []}'; //default if !exists
+        try {
+            await vscode.workspace.fs.stat(taskFileURI);
+            let doc = await vscode.workspace.openTextDocument(taskFileURI);
+            contents = doc.getText(); //get existing
+            tfExists = true;
+        } catch( err ) {
+            tfExists = false;
+        }
+
+        const config = JSON.parse(contents);
+
+        //already exists
+        for(let task of config.tasks) {
+            if(task.label === definition.label) {
+                return;
+            }
+        }
+        config.tasks.push(definition);
 
         if (config) {
-            vscode.workspace.fs.writeFile(setting, Buffer.from(JSON.stringify(config, null, 4), 'utf8'));
-            vscode.window.showTextDocument(setting);
-        }
+            if( tfExists ) {
+                vscode.workspace.fs.writeFile(taskFileURI, Buffer.from(JSON.stringify(config, null, 4), 'utf8'));
+            } else {
+                const wsedit = new vscode.WorkspaceEdit();
+                await wsedit.createFile(taskFileURI, { ignoreIfExists: true });
+                await wsedit.insert(taskFileURI,new vscode.Position(0,0),JSON.stringify(config, null, 4));
+                await vscode.workspace.applyEdit(wsedit);
+            }
+            vscode.window.showTextDocument(taskFileURI);
+        }    
     }
 
     public async runPysysTest(cwd: string, workspace?: vscode.WorkspaceFolder, extraargs?:string[]): Promise<vscode.Task | undefined> {
@@ -118,7 +136,7 @@ export class PysysTaskProvider implements vscode.TaskProvider {
         let args: string[] | undefined;
         const projectDefinition: string = 
             element instanceof PysysDirectory ? 
-            `${element.parent}/${element.label}` : 
+            path.join(element.parent,element.label) : 
             element.label;
 
         for(let task of tasks) {
@@ -127,7 +145,7 @@ export class PysysTaskProvider implements vscode.TaskProvider {
             }
         }
 
-        const cwd: string = `${element.ws.uri.fsPath}/${projectDefinition}`;
+        const cwd: string = path.join(element.ws.uri.fsPath,projectDefinition);
         if(args) {
             const task : vscode.Task | undefined =
                 await this.runPysysTest(cwd, element.ws, args);
