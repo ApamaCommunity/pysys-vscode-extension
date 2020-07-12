@@ -204,12 +204,12 @@
 				{
 					"when": "view == pysysProjects && viewItem == project",
 					"command": "pysys.runProject",
-					"group": "inline@5"
+					"group": "inline@4"
 				},
 				{
 					"when": "view == pysysProjects && viewItem == project",
 					"command": "pysys.runProjectCustom",
-					"group": "inline@4"
+					"group": "inline@5"
 				},
 				{
 					"when": "view == pysysProjects && viewItem == project",
@@ -249,7 +249,7 @@
 				{
 					"when": "view == pysysProjects && viewItem == directory",
 					"command": "pysys.runDirectory",
-					"group": "inline@2"
+					"group": "inline@1"
 				},
 				{
 					"when": "view == pysysProjects && viewItem == directory",
@@ -265,7 +265,13 @@
 					"when": "view == pysysProjects && viewItem == directory",
 					"command": "pysys.createDir",
 					"group": "inline@1"
-				}
+				},
+				{
+					"when": "view == pysysProjects && viewItem == directory",
+					"command": "pysys.openShell",
+					"group": "inline@1"
+				},
+
 			]
 		}
 	},

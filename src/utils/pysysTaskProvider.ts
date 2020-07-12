@@ -134,10 +134,7 @@ export class PysysTaskProvider implements vscode.TaskProvider {
     public async runCustom(element: PysysDirectory | PysysProject) {
         const tasks: vscode.Task[] = await vscode.tasks.fetchTasks();
         let args: string[] | undefined;
-        const projectDefinition: string = 
-            element instanceof PysysDirectory ? 
-            path.join(element.parent,element.label) : 
-            element.label;
+        const projectDefinition: string = element.label;
 
         for(let task of tasks) {
             if (task.definition.project === projectDefinition) {
@@ -145,7 +142,7 @@ export class PysysTaskProvider implements vscode.TaskProvider {
             }
         }
 
-        const cwd: string = path.join(element.ws.uri.fsPath,projectDefinition);
+        const cwd: string = element.fsPath;
         if(args) {
             const task : vscode.Task | undefined =
                 await this.runPysysTest(cwd, element.ws, args);
@@ -156,7 +153,7 @@ export class PysysTaskProvider implements vscode.TaskProvider {
             const definition: PysysTaskDefinition = {
                 type: "pysys",
                 task: "run",
-                cwd: cwd,
+                cwd,
                 project: `${projectDefinition}`,
                 extraargs: [],
                 problemMatcher: ["$pysys"],
