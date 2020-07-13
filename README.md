@@ -10,13 +10,17 @@ for more information on pysys please visit the [pysys project page](https://pypi
 * Set custom arguments to run your tests with
 * Test failures displayed in the vscode problems tab
 
+![overview](images/example_screen1.png)
+
 ## Requirements
 
-Python and the pysys extension are required to benefit from this extension
+Python and the pysys extension are required to use this extension.
 
 ## Settings
 
-* **Pysys Interpreter :** the default pysys interpreter the application will use, can be manually set.
+![settings](images/settings.png)
+
+* **Pysys Interpreter :** the default pysys interpreter the application will use.
 
 ***
 
@@ -24,17 +28,21 @@ Python and the pysys extension are required to benefit from this extension
 
 A view in the vscode explorer that displays all pysys projects/tests in the current workspace(s).
 
-![view](images/view.gif)
+![view](images/viewdemo.gif)
 
 You can create new projects, directories or tests straight from the view.
 
-![create](images/create.gif)
+![create](images/creationdemo.gif)
 
 ## Edit
 
 Start working on your tests straight away
 
-![edit](images/edit.gif)
+![edit](images/edittest.gif)
+
+Fully integrated python extension from Microsoft allows auto complete.
+
+![edit](images/integrationdemo.gif)
 
 ## Run
 
