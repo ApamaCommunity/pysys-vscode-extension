@@ -18,7 +18,7 @@ export class PysysTaskProvider implements vscode.TaskProvider {
     private config: vscode.WorkspaceConfiguration;
     private interpreter: string | undefined;
 
-    constructor(private workspace: vscode.WorkspaceFolder) { 
+    constructor() { 
         this.config = vscode.workspace.getConfiguration("pysys"); 
         this.interpreter = this.config.get("defaultInterpreterPath");
     }
@@ -47,7 +47,7 @@ export class PysysTaskProvider implements vscode.TaskProvider {
         const task = new vscode.Task(
             {"type": "pysys",
             "task": "run",
-            "cwd": `${this.workspace.uri.fsPath}/{PYSYS_PROJECT}`,
+            "cwd": "path_to/{PYSYS_PROJECT}",
             "project": "{PYSYS_PROJECT}",
             "extraargs": []},
             "run",
@@ -59,11 +59,12 @@ export class PysysTaskProvider implements vscode.TaskProvider {
           return task;
     }
 
-    public async writeTaskConfig(definition: PysysTaskDefinition) {
-        const taskFile: string = path.join(this.workspace.uri.fsPath,'.vscode','tasks.json');
+    public async writeTaskConfig(definition: PysysTaskDefinition, ws: vscode.WorkspaceFolder) {
+        const taskFile: string = path.join(ws.uri.fsPath,'.vscode','tasks.json');
         const taskFileURI = vscode.Uri.file(taskFile);
-        let tfExists: boolean;
         let contents: string = '{\"version\": \"2.0.0\",\"tasks\": []}'; //default if !exists
+        let tfExists: boolean;
+
         try {
             await vscode.workspace.fs.stat(taskFileURI);
             let doc = await vscode.workspace.openTextDocument(taskFileURI);
@@ -75,7 +76,6 @@ export class PysysTaskProvider implements vscode.TaskProvider {
 
         const config = JSON.parse(contents);
 
-        //already exists
         for(let task of config.tasks) {
             if(task.label === definition.label) {
                 return;
@@ -160,7 +160,7 @@ export class PysysTaskProvider implements vscode.TaskProvider {
                 label: `pysys: run /${projectDefinition}` 
             };
 
-            const out = await this.writeTaskConfig(definition);
+            const out = await this.writeTaskConfig(definition, element.ws);
         }
     }
 }

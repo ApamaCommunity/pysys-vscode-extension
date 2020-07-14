@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import {PysysTreeItem, PysysProject, PysysWorkspace, PysysTest, PysysDirectory} from "./pysys";
 import {PysysRunner} from "../utils/pysysRunner";
 import {PysysTaskProvider, PysysTaskDefinition} from "../utils/pysysTaskProvider";
-import {pickWorkspaceFolder, pickDirectory} from "../utils/fsUtils";
+import {pickWorkspaceFolder, pickDirectory, createTaskConfig} from "../utils/fsUtils";
 import * as path from "path";
 import { promises } from "dns";
 import { O_DIRECTORY } from "constants";
@@ -26,13 +26,21 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
         
         this.config = vscode.workspace.getConfiguration("pysys"); 
         this.interpreter = this.config.get("defaultInterpreterPath");
-        workspaces.forEach( ws => this.workspaceList.push(new PysysWorkspace(ws.name,vscode.TreeItemCollapsibleState.Collapsed, ws, ws.uri.fsPath)));
         this.registerCommands();
-        this.taskProvider = new PysysTaskProvider(workspaces[0]);
+        this.buildStatusBar();
+        this.taskProvider = new PysysTaskProvider();
+        
+        const collapedState = workspaces.length === 1 ? 
+            vscode.TreeItemCollapsibleState.Expanded : 
+            vscode.TreeItemCollapsibleState.Collapsed;
+
+        workspaces.forEach( ws => this.workspaceList.push(
+            new PysysWorkspace(ws.name, collapedState , ws, ws.uri.fsPath)
+        ));
 
         vscode.workspace.onDidChangeConfiguration(async e => {
 			if(e.affectsConfiguration('pysys.defaultInterpreterPath')) {
-				this.taskProvider = new PysysTaskProvider(workspaces[0]);
+				this.taskProvider = new PysysTaskProvider();
 			}
 		});
     }
@@ -175,6 +183,9 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
                         vscode.workspace.openTextDocument(setting)
                             .then(doc => {
                                 vscode.window.showTextDocument(doc);
+                            }, async reason => {
+                                await createTaskConfig(element.ws);
+                                vscode.commands.executeCommand("pysys.openTaskConfig", element);
                             });
                     }
                 }),
@@ -215,6 +226,31 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
                     }
                 }),
             ]);
+        }
+    }
+
+    async buildStatusBar() {
+        if(this.context !== undefined) {
+            let versionCmd: PysysRunner = new PysysRunner("version", `${this.interpreter} --version`, this.logger);
+            let versionOutput: any = await versionCmd.run(".",[]);
+
+            let versionlines: string[]  = versionOutput.stdout.split("\n");
+            const pat : RegExp = new RegExp(/PySys.System.Test.Framework\s+\(version\s+([^\s]+)\s+on\s+Python\s+([^)]+)\)/);
+
+            let version: string | undefined;
+            for (let index: number = 0; index < versionlines.length; index++) {
+            const line : string = versionlines[index];
+                if ( pat.test(line) ) {
+                    version = RegExp.$1;
+                }
+            }
+
+            if(version) {
+                let statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+                statusBar.text = `Pysys ${version}`;
+                statusBar.show();
+                this.context.subscriptions.push(statusBar);
+            }
         }
     }
 

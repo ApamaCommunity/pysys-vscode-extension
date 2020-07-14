@@ -44,7 +44,7 @@ export class PysysEnvironment {
             try {
                 let versionCmd: PysysRunner = new PysysRunner("version", `${cmd} --version`, this.logger);
                 let versionOutput: any = await versionCmd.run(".",[]);
-
+                
                 return cmd;
             } catch (e) {
                 continue;
@@ -54,14 +54,6 @@ export class PysysEnvironment {
         // todo move this to it's own function, above needs to rerun
 
         return undefined;
-        // let versionlines: string[]  = versionOutput.stdout.split("\n");
-        // const pat : RegExp = new RegExp(/PySys.System.Test.Framework\s+\(version\s+([^\s]+)\s+on\s+Python\s+([^)]+)\)/);
-        // for (let index: number = 0; index < versionlines.length; index++) {
-        //     const line : string = versionlines[index];
-        //     if ( pat.test(line) ) {
-        //         return pysysVersion = RegExp.$1;
-        //     }
-        // }
     }
 
     private async installPysys(): Promise<boolean> {
@@ -87,5 +79,16 @@ export class PysysEnvironment {
             vscode.window.showErrorMessage("No python installation found, please visit https://www.python.org/downloads/");
         }
         return false;
+    }
+
+    private getPysysVersion(versionOutput: any): string | undefined {
+        let versionlines: string[]  = versionOutput.stdout.split("\n");
+        const pat : RegExp = new RegExp(/PySys.System.Test.Framework\s+\(version\s+([^\s]+)\s+on\s+Python\s+([^)]+)\)/);
+        for (let index: number = 0; index < versionlines.length; index++) {
+            const line : string = versionlines[index];
+            if ( pat.test(line) ) {
+                return RegExp.$1;
+            }
+        }
     }
 }

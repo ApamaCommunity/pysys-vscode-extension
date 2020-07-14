@@ -37,7 +37,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 			new PysysProjectView(logger, myClonedArray, context)
 		);
 		
-		const taskprov = new PysysTaskProvider(myClonedArray[0]);
+		const taskprov = new PysysTaskProvider();
 		context.subscriptions.push(vscode.tasks.registerTaskProvider("pysys", taskprov));
 	}
 }

@@ -134,6 +134,19 @@ export async function getStructure(root: vscode.Uri): Promise<[vscode.Uri, struc
     return currentLevel;
 }
 
+export async function createTaskConfig(ws: vscode.WorkspaceFolder) {
+    const taskFile: string = path.join(ws.uri.fsPath,'.vscode','tasks.json');
+    const taskFileURI = vscode.Uri.file(taskFile);
+
+    let contents: string = '{\"version\": \"2.0.0\",\"tasks\": []}';
+    const config = JSON.parse(contents);
+
+    const wsedit = new vscode.WorkspaceEdit();
+    wsedit.createFile(taskFileURI, { ignoreIfExists: true });
+    wsedit.insert(taskFileURI,new vscode.Position(0,0),JSON.stringify(config, null, 4));
+
+    await vscode.workspace.applyEdit(wsedit);
+}
 
 
 

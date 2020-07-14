@@ -77,7 +77,7 @@
 		"commands": [
 			{
 				"command": "pysys.refresh",
-				"title": "refresh",
+				"title": "Refresh",
 				"icon": {
 					"light": "resources/light/refresh.svg",
 					"dark": "resources/dark/refresh.svg"
@@ -85,7 +85,7 @@
 			},
 			{
 				"command": "pysys.createProject",
-				"title": "create project",
+				"title": "Create project",
 				"icon": {
 					"light": "resources/light/library_add.svg",
 					"dark": "resources/dark/library_add.svg"
@@ -93,7 +93,7 @@
 			},
 			{
 				"command": "pysys.createTest",
-				"title": "create test",
+				"title": "Create test",
 				"icon": {
 					"light": "resources/light/add.svg",
 					"dark": "resources/dark/add.svg"
@@ -101,7 +101,7 @@
 			},
 			{
 				"command": "pysys.createDir",
-				"title": "create directory",
+				"title": "Create directory",
 				"icon": {
 					"light": "resources/light/folder.svg",
 					"dark": "resources/dark/folder.svg"
@@ -109,7 +109,7 @@
 			},
 			{
 				"command": "pysys.editProject",
-				"title": "edit project",
+				"title": "Edit project",
 				"icon": {
 					"light": "resources/light/edit.svg",
 					"dark": "resources/dark/edit.svg"
@@ -117,7 +117,7 @@
 			},
 			{
 				"command": "pysys.editTest",
-				"title": "edit test",
+				"title": "Edit test",
 				"icon": {
 					"light": "resources/light/edit.svg",
 					"dark": "resources/dark/edit.svg"
@@ -125,7 +125,7 @@
 			},
 			{
 				"command": "pysys.runProject",
-				"title": "run all test cases",
+				"title": "Run all test cases",
 				"icon": {
 					"light": "resources/light/play_arrow.svg",
 					"dark": "resources/dark/play_arrow.svg"
@@ -133,7 +133,7 @@
 			},
 			{
 				"command": "pysys.runProjectCustom",
-				"title": "run with custom arguments",
+				"title": "Run with custom arguments",
 				"icon": {
 					"light": "resources/light/double_arrow.svg",
 					"dark": "resources/dark/double_arrow.svg"
@@ -141,7 +141,7 @@
 			},
 			{
 				"command": "pysys.runTest",
-				"title": "run test",
+				"title": "Run test",
 				"icon": {
 					"light": "resources/light/play_arrow.svg",
 					"dark": "resources/dark/play_arrow.svg"
@@ -149,7 +149,7 @@
 			},
 			{
 				"command": "pysys.openTaskConfig",
-				"title": "configure tasks",
+				"title": "Configure tasks",
 				"icon": {
 					"light": "resources/light/settings.svg",
 					"dark": "resources/dark/settings.svg"
@@ -157,7 +157,7 @@
 			},
 			{
 				"command": "pysys.runDirectory",
-				"title": "run tests in directory",
+				"title": "Run tests in directory",
 				"icon": {
 					"light": "resources/light/play_arrow.svg",
 					"dark": "resources/dark/play_arrow.svg"
@@ -165,7 +165,7 @@
 			},
 			{
 				"command": "pysys.runDirectoryCustom",
-				"title": "run tests in directory with custom parameters",
+				"title": "Run with custom parameters",
 				"icon": {
 					"light": "resources/light/double_arrow.svg",
 					"dark": "resources/dark/double_arrow.svg"
@@ -173,7 +173,7 @@
 			},
 			{
 				"command": "pysys.openShell",
-				"title": "open shell at project",
+				"title": "Open terminal",
 				"icon": {
 					"light": "resources/light/code.svg",
 					"dark": "resources/dark/code.svg"
@@ -198,36 +198,6 @@
 			],
 			"view/item/context": [
 				{
-					"when": "view == pysysProjects && viewItem == project",
-					"command": "pysys.openShell",
-					"group": "inline@6"
-				},
-				{
-					"when": "view == pysysProjects && viewItem == project",
-					"command": "pysys.runProject",
-					"group": "inline@4"
-				},
-				{
-					"when": "view == pysysProjects && viewItem == project",
-					"command": "pysys.runProjectCustom",
-					"group": "inline@5"
-				},
-				{
-					"when": "view == pysysProjects && viewItem == project",
-					"command": "pysys.editProject",
-					"group": "inline@3"
-				},
-				{
-					"when": "view == pysysProjects && viewItem == project",
-					"command": "pysys.createDir",
-					"group": "inline@2"
-				},
-				{
-					"when": "view == pysysProjects && viewItem == project",
-					"command": "pysys.createTest",
-					"group": "inline@1"
-				},
-				{
 					"when": "view == pysysProjects && viewItem == workspace",
 					"command": "pysys.createProject",
 					"group": "inline@2"
@@ -235,27 +205,37 @@
 				{
 					"when": "view == pysysProjects && viewItem == workspace",
 					"command": "pysys.openTaskConfig",
+					"group": "A@1"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == project",
+					"command": "pysys.createTest",
 					"group": "inline@1"
 				},
 				{
-					"when": "view == pysysProjects && viewItem == test",
-					"command": "pysys.editTest",
-					"group": "inline@1"
-				},
-				{
-					"when": "view == pysysProjects && viewItem == test",
-					"command": "pysys.runTest",
+					"when": "view == pysysProjects && viewItem == project",
+					"command": "pysys.runProject",
 					"group": "inline@2"
 				},
 				{
-					"when": "view == pysysProjects && viewItem == directory",
-					"command": "pysys.runDirectory",
-					"group": "inline@1"
+					"when": "view == pysysProjects && viewItem == project",
+					"command": "pysys.runProjectCustom",
+					"group": "A@1"
 				},
 				{
-					"when": "view == pysysProjects && viewItem == directory",
-					"command": "pysys.runDirectoryCustom",
-					"group": "inline@1"
+					"when": "view == pysysProjects && viewItem == project",
+					"command": "pysys.openShell",
+					"group": "A@2"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == project",
+					"command": "pysys.editProject",
+					"group": "B@1"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == project",
+					"command": "pysys.createDir",
+					"group": "B@2"
 				},
 				{
 					"when": "view == pysysProjects && viewItem == directory",
@@ -264,13 +244,33 @@
 				},
 				{
 					"when": "view == pysysProjects && viewItem == directory",
-					"command": "pysys.createDir",
-					"group": "inline@1"
+					"command": "pysys.runDirectory",
+					"group": "inline@2"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == directory",
+					"command": "pysys.runDirectoryCustom",
+					"group": "A@1"
 				},
 				{
 					"when": "view == pysysProjects && viewItem == directory",
 					"command": "pysys.openShell",
+					"group": "A@2"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == directory",
+					"command": "pysys.createDir",
+					"group": "B@1"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == test",
+					"command": "pysys.runTest",
 					"group": "inline@1"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == test",
+					"command": "pysys.editTest",
+					"group": "A@1"
 				}
 			]
 		}

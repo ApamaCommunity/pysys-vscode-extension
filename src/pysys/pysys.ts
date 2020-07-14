@@ -13,7 +13,6 @@ export interface PysysTreeItem {
     contextValue: string;
 }
 
-
 export class PysysTest extends vscode.TreeItem implements PysysTreeItem {
     constructor(
         public readonly label: string,
