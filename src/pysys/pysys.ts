@@ -2,6 +2,9 @@ import * as vscode from "vscode";
 import * as path from "path";
 import { PysysRunner } from "../utils/pysysRunner";
 import { buildProjectDirectory, getStructure, structureType } from "../utils/fsUtils";
+import { dirname } from "path";
+
+const resourcesPath = path.join(__dirname, '..', '..', 'resources');
 
 export interface PysysTreeItem {
     label: string;
@@ -27,8 +30,8 @@ export class PysysTest extends vscode.TreeItem implements PysysTreeItem {
     contextValue = "test";
 
     iconPath = {
-        light: path.join(__filename, '..', '..', '..', 'resources', 'light', 'power.svg'),
-        dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', 'power.svg')
+        light: path.join(__dirname, '..', '..', 'resources', 'light', 'power.svg'),
+        dark: path.join(__dirname, '..', '..', 'resources', 'dark', 'power.svg')
     };
 }
 
@@ -46,8 +49,8 @@ export class PysysDirectory extends vscode.TreeItem implements PysysTreeItem {
     contextValue: string = "directory";
 
     iconPath = {
-        light: path.join(__filename, '..', '..', '..', 'resources', 'light', 'folder.svg'),
-        dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', 'folder.svg')
+        light: path.join(__dirname, '..', '..', 'resources', 'light', 'folder.svg'),
+        dark: path.join(__dirname, '..', '..', 'resources', 'dark', 'folder.svg')
     };
 
     async scanTestsAndDirectories(): Promise<(PysysDirectory | PysysTest)[]> {
@@ -99,8 +102,8 @@ export class PysysProject extends vscode.TreeItem implements PysysTreeItem {
     contextValue: string = "project";
 
     iconPath = {
-        light: path.join(__filename, '..', '..', '..', 'resources', 'light', 'project.svg'),
-        dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', 'project.svg')
+        light: path.join(__dirname, '..', '..', 'resources', 'light', 'project.svg'),
+        dark: path.join(__dirname, '..', '..', 'resources', 'dark', 'project.svg')
     };
 
     
@@ -158,8 +161,8 @@ export class PysysWorkspace extends vscode.TreeItem implements PysysTreeItem {
     parent = undefined;
 
     iconPath = {
-        light: path.join(__filename, '..', '..', '..', 'resources', 'light', 'folder.svg'),
-        dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', 'folder.svg')
+        light: path.join(__dirname, '..', '..', 'resources', 'dark', 'project.svg'),
+        dark: path.join(__dirname, '..', '..', 'resources', 'dark', 'project.svg')
     };
 
     async scanProjects(): Promise<PysysProject[]> {

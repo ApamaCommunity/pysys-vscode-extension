@@ -29,7 +29,7 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
         this.registerCommands();
         this.buildStatusBar();
         this.taskProvider = new PysysTaskProvider();
-        
+
         const collapedState = workspaces.length === 1 ? 
             vscode.TreeItemCollapsibleState.Expanded : 
             vscode.TreeItemCollapsibleState.Collapsed;
@@ -57,7 +57,29 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
                         const folder = await pickWorkspaceFolder();
 
                         if (folder !== undefined) {
-                            const projectDir = await pickDirectory(folder.uri);
+
+                            const result = await vscode.window.showQuickPick([
+                                "$(diff-insert) Add project", 
+                                "$(file-directory) Use existing directory"
+                            ], {
+                                placeHolder: "Choose",
+                                ignoreFocusOut: true,
+                            });
+
+                            let projectDir: string | undefined;
+                            if (result === "$(diff-insert) Add project") {
+                                const projectName: string | undefined = await vscode.window.showInputBox({
+                                    placeHolder: "enter a project name"
+                                });
+
+                                if (projectName) {
+                                    projectDir = path.join(folder.uri.fsPath, projectName);
+                                    await vscode.workspace.fs.createDirectory(vscode.Uri.file(projectDir));
+                                }
+                            } else if (result === "$(file-directory) Use existing directory") {
+                                projectDir = await pickDirectory(folder.uri);
+                            }
+
                             if(projectDir) {
                                 let makeProjectCmd : PysysRunner= new PysysRunner("makeProject", `${this.interpreter}`, this.logger);
                                 let makeProject : string = await makeProjectCmd.run(projectDir,["makeproject"]);
