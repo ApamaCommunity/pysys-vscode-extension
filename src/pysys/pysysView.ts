@@ -8,6 +8,8 @@ import { promises } from "dns";
 import { O_DIRECTORY } from "constants";
 import { dir } from "console";
 import { loadavg } from "os";
+import { dirname } from "path";
+import * as fs from "fs";
 
 export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> {
 
@@ -20,6 +22,8 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
     private config: vscode.WorkspaceConfiguration;
     private interpreter: string | undefined;
 
+    private isFlatStructure: boolean;
+
     constructor(private logger: vscode.OutputChannel,
         private workspaces: vscode.WorkspaceFolder[],
         private context?: vscode.ExtensionContext) {
@@ -29,6 +33,8 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
         this.registerCommands();
         this.buildStatusBar();
         this.taskProvider = new PysysTaskProvider();
+
+        this.isFlatStructure = false;
 
         const collapedState = workspaces.length === 1 ? 
             vscode.TreeItemCollapsibleState.Expanded : 
@@ -191,8 +197,11 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
 
                 vscode.commands.registerCommand("pysys.runTest", async (element?: PysysTest) => {
                     if(element) {
+                        // to support flat view
+                        const label = element.label.split("/");
+                        
                         const task : vscode.Task | undefined =
-                            await this.taskProvider.runPysysTest(`${element.fsPath}`, element.ws, [element.label]);
+                            await this.taskProvider.runPysysTest(`${element.fsPath}`, element.ws, [label[label.length-1]]);
                         if(task) {
                             await vscode.tasks.executeTask(task);
                         }
@@ -247,6 +256,13 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
                         term.show(false);
                     }
                 }),
+
+                vscode.commands.registerCommand("pysys.toggleFlatView", async (element?: PysysDirectory) => {
+                    if(element) {
+                        this.isFlatStructure = !this.isFlatStructure;
+                        this.refresh();
+                    }
+                }),
             ]);
         }
     }
@@ -276,6 +292,26 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
         }
     }
 
+    async listTests(ws: vscode.WorkspaceFolder): Promise<PysysTest[]> {
+        let testPattern: vscode.RelativePattern = new vscode.RelativePattern(ws.uri.fsPath, "**/pysystest.xml");
+        let testNames: vscode.Uri[] = await vscode.workspace.findFiles(testPattern);
+        let result: PysysTest[] = [];
+
+        testNames.forEach(test => {
+            const label: string = path.relative(ws.uri.fsPath, path.dirname(test.fsPath));
+            let current: PysysTest = new PysysTest(
+                label,
+                vscode.TreeItemCollapsibleState.None,
+                ws,
+                `${ws.uri.fsPath}/${label}`,
+                `${ws.uri.fsPath}/${label}`
+            );
+            result.push(current);
+        });
+
+        return result;
+    }
+
     refresh(): void {
 		this._onDidChangeTreeData.fire(undefined);
     }
@@ -286,9 +322,14 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
     }
 
     async getChildren(element?: PysysDirectory | PysysProject | PysysWorkspace): Promise<undefined | PysysWorkspace[] | PysysProject[] | PysysTest[]> {
+
         if(element instanceof PysysWorkspace) {
-            element.items = await element.scanProjects();
-            return element.items;
+            if(this.isFlatStructure) {
+                return await this.listTests(element.ws);
+            } else {
+                element.items = await element.scanProjects();
+                return element.items;
+            }
         }
 
         else if(element instanceof PysysProject) {

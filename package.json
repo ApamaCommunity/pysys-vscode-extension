@@ -178,6 +178,14 @@
 					"light": "resources/light/code.svg",
 					"dark": "resources/dark/code.svg"
 				}
+			},
+			{
+				"command": "pysys.toggleFlatView",
+				"title": "Toggle flat test view",
+				"icon": {
+					"light": "resources/light/list.svg",
+					"dark": "resources/dark/list.svg"
+				}
 			}
 		],
 		"views": {
@@ -197,6 +205,11 @@
 				}
 			],
 			"view/item/context": [
+				{
+					"when": "view == pysysProjects && viewItem == workspace",
+					"command": "pysys.toggleFlatView",
+					"group": "inline@1"
+				},
 				{
 					"when": "view == pysysProjects && viewItem == workspace",
 					"command": "pysys.createProject",
@@ -276,10 +289,14 @@
 		}
 	},
 	"scripts": {
-		"vscode:prepublish": "webpack --mode production",
-		"compile": "webpack --mode development",
-		"watch": "webpack --mode development --watch",
-		"lint": "eslint src --ext ts"
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"lint": "eslint src --ext ts",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile && npm run lint",
+		"test": "node ./out/test/runTest.js",
+		"webpack": "webpack --mode development",
+		"webpack --watch": "webpack --mode development --watch"
 	},
 	"devDependencies": {
 		"@types/glob": "^7.1.1",

@@ -3,7 +3,6 @@
 'use strict';
 
 const path = require('path');
-const StringReplacePlugin = require("string-replace-webpack-plugin");
 
 let DEBUG_WEBPACK = !!process.env.DEBUG_WEBPACK;
 
@@ -14,7 +13,7 @@ const config = {
   entry: './src/extension.ts', // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
   output: {
     // the bundle is stored in the 'dist' folder (check package.json), 📖 -> https://webpack.js.org/configuration/output/
-    path: path.resolve(__dirname, 'out'),
+    path: path.resolve(__dirname, 'dist'),
     filename: 'extension.js',
     libraryTarget: 'commonjs2',
     devtoolModuleFilenameTemplate: '../[resource-path]'
@@ -37,46 +36,7 @@ const config = {
             loader: 'ts-loader'
           }
         ]
-      },
-      {
-        test: /pysys-vscode-extension/,
-        loader: StringReplacePlugin.replace({
-            replacements: [
-                {
-                    // Rewrite references to resources so file-loader can process them.
-                    //
-                    // e.g. change this:
-                    //   path.join(__dirname, '..', '..', '..', '..', 'resources', 'dark', 'Loading.svg')
-                    //
-                    //     to this:
-                    //
-                    // require(__dirname + '/..' + '/..' + '/..' + '/..' + '/resources' + '/dark' + '/Loading.svg')
-                    //
-                    pattern: /path.join\((__dirname|__filename),.*'resources',.*'\)/ig,
-                    replacement: function (match, offset, string) {
-                        let pathExpression = match.
-                            replace(/path\.join\((.*)\)/, '$1').
-                            replace(/\s*,\s*['"]/g, ` + '/`);
-                        let requireExpression = `require(${pathExpression})`;
-                        let resolvedExpression = `path.resolve(__dirname, ${requireExpression})`;
-
-                        return requireExpression;
-                    }
-                }
-            ]
-        })
-      },
-      {
-        test: /\.(png|svg|jpg|gif)$/,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-                name: '[path][name].[ext]'
-            }
-          }
-        ],
-      },
+      }
     ]
   }
 };

@@ -161,8 +161,8 @@ export class PysysWorkspace extends vscode.TreeItem implements PysysTreeItem {
     parent = undefined;
 
     iconPath = {
-        light: path.join(__dirname, '..', '..', 'resources', 'dark', 'project.svg'),
-        dark: path.join(__dirname, '..', '..', 'resources', 'dark', 'project.svg')
+        light: path.join(__dirname, '..', '..', 'resources', 'dark', 'folder.svg'),
+        dark: path.join(__dirname, '..', '..', 'resources', 'dark', 'folder.svg')
     };
 
     async scanProjects(): Promise<PysysProject[]> {
