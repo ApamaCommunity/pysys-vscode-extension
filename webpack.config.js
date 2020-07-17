@@ -6,6 +6,11 @@ const path = require('path');
 
 let DEBUG_WEBPACK = !!process.env.DEBUG_WEBPACK;
 
+const PATHS = {
+  output: path.resolve(__dirname, 'out'),
+  resources: path.resolve(__dirname, 'out/resources'),
+};
+
 /**@type {import('webpack').Configuration}*/
 const config = {
   target: 'node', // vscode extensions run in a Node.js-context 📖 -> https://webpack.js.org/configuration/node/
@@ -13,7 +18,7 @@ const config = {
   entry: './src/extension.ts', // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
   output: {
     // the bundle is stored in the 'dist' folder (check package.json), 📖 -> https://webpack.js.org/configuration/output/
-    path: path.resolve(__dirname, 'dist'),
+    path: PATHS.output,
     filename: 'extension.js',
     libraryTarget: 'commonjs2',
     devtoolModuleFilenameTemplate: '../[resource-path]'
@@ -36,8 +41,22 @@ const config = {
             loader: 'ts-loader'
           }
         ]
-      }
+      },
+      {
+        test: /\.svg$/i,
+        loader: "file-loader",
+        options: {
+          name: '[path][name].[ext]',
+        },
+      },
+      {
+        test: /\.svg$/i,
+        loader: "svg-url-loader"
+      },
+
     ]
   }
 };
+
+
 module.exports = config;

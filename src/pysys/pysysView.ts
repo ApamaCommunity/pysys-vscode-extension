@@ -1,15 +1,9 @@
 import * as vscode from "vscode";
 import {PysysTreeItem, PysysProject, PysysWorkspace, PysysTest, PysysDirectory} from "./pysys";
 import {PysysRunner} from "../utils/pysysRunner";
-import {PysysTaskProvider, PysysTaskDefinition} from "../utils/pysysTaskProvider";
+import {PysysTaskProvider} from "../utils/pysysTaskProvider";
 import {pickWorkspaceFolder, pickDirectory, createTaskConfig} from "../utils/fsUtils";
 import * as path from "path";
-import { promises } from "dns";
-import { O_DIRECTORY } from "constants";
-import { dir } from "console";
-import { loadavg } from "os";
-import { dirname } from "path";
-import * as fs from "fs";
 
 export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> {
 
@@ -26,7 +20,7 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
 
     constructor(private logger: vscode.OutputChannel,
         private workspaces: vscode.WorkspaceFolder[],
-        private context?: vscode.ExtensionContext) {
+        private context: vscode.ExtensionContext) {
         
         this.config = vscode.workspace.getConfiguration("pysys"); 
         this.interpreter = this.config.get("defaultInterpreterPath");
@@ -41,7 +35,7 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
             vscode.TreeItemCollapsibleState.Collapsed;
 
         workspaces.forEach( ws => this.workspaceList.push(
-            new PysysWorkspace(ws.name, collapedState , ws, ws.uri.fsPath)
+            new PysysWorkspace(ws.name, collapedState , ws, ws.uri.fsPath,context.asAbsolutePath('resources'))
         ));
 
         vscode.workspace.onDidChangeConfiguration(async e => {
@@ -199,7 +193,7 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
                     if(element) {
                         // to support flat view
                         const label = element.label.split("/");
-                        
+
                         const task : vscode.Task | undefined =
                             await this.taskProvider.runPysysTest(`${element.fsPath}`, element.ws, [label[label.length-1]]);
                         if(task) {
@@ -304,7 +298,8 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
                 vscode.TreeItemCollapsibleState.None,
                 ws,
                 `${ws.uri.fsPath}/${label}`,
-                `${ws.uri.fsPath}/${label}`
+                `${ws.uri.fsPath}/${label}`,
+                this.context.asAbsolutePath('resources')
             );
             result.push(current);
         });
