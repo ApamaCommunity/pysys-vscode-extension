@@ -1,5 +1,5 @@
 # pysys-vscode-extension
-This is a vscode extension for the PySys testing framework it enables the use of this testing framework in Visual Studio Code allowing the use of the UI to interact with and create tests for your software projects.
+This is a vscode extension for the PySys testing framework. It enables the use of this testing framework in Visual Studio Code allowing the use of the UI to create, edit, and execute tests for your software projects.
 
 For more information about PySys please visit the [PySys project page](https://pypi.org/project/PySys/)
 
