@@ -1,32 +1,32 @@
 # pysys-vscode-extension
-This is a vscode extension for the pysys framwork it enables the use of this testing framework in Visual Studio Code allowing the use of the UI to interact with and create tests for your software projects.
+This is a vscode extension for the PySys testing framework. It enables the use of this testing framework in Visual Studio Code allowing the use of the UI to create, edit, and execute tests for your software projects.
 
-for more information on pysys please visit the [pysys project page](https://pypi.org/project/PySys/)
+For more information about PySys please visit the [PySys project page](https://pypi.org/project/PySys/)
 
 ## Features
 
-* See your pysys project structure at a quick glance
-* Create and run tests straight from the UI
-* Set custom arguments to run your tests with
-* Test failures displayed in the vscode problems tab
+* See your PySys project structure at a quick glance
+* Create and run tests directly from the UI
+* Set custom arguments with which to run your tests
+* Test failures are displayed in the vscode problems tab
 
 ![overview](images/example_screen1.png)
 
 ## Requirements
 
-Python and the pysys extension are required to use this extension.
+Python and the PySys framework are required to use this extension.
 
 ## Settings
 
 ![settings](images/settings.png)
 
-* **Pysys Interpreter :** the default pysys interpreter the application will use.
+* **PySys Interpreter :** the default PySys interpreter the application will use.
 
 ***
 
-## Pysys view
+## PySys view
 
-A view in the vscode explorer that displays all pysys projects/tests in the current workspace(s).
+A view in the vscode explorer that displays all PySys projects/tests in the current workspace(s).
 
 ![view](images/viewdemo.gif)
 
@@ -40,7 +40,7 @@ Start working on your tests straight away
 
 ![edit](images/edittest.gif)
 
-Fully integrated python extension from Microsoft allows auto complete.
+Fully integrated python extension from Microsoft allows auto-complete.
 
 ![edit](images/integrationdemo.gif)
 
