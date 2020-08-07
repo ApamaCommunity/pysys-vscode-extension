@@ -1,7 +1,7 @@
 
 # pysys-vscode-extension
 
-[![Build Status](https://dev.azure.com/CaribouJohnDevOps/pysys-vscode-extension/_apis/build/status/CaribouJohn.pysys-vscode-extension?branchName=master)](https://dev.azure.com/CaribouJohnDevOps/pysys-vscode-extension/_build/latest?definitionId=1&branchName=master)
+![Azure CI] (https://dev.azure.com/CaribouJohnDevOps/pysys-vscode-extension/_apis/build/status/CaribouJohn.pysys-vscode-extension?branchName=master "Azure pipelines status")
 
 This is a vscode extension for the PySys testing framework. It enables the use of this testing framework in Visual Studio Code allowing the use of the UI to create, edit, and execute tests for your software projects.
 
