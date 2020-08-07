@@ -36,6 +36,6 @@ steps:
     cd resources && git submodule init && git submodule update
     yarn && yarn webpack
     echo ">>> Compiled pysys-vscode-extension"
-  displayName: Run Tests
+  displayName: Build Extension
   env:
     DISPLAY: ':99.0'
