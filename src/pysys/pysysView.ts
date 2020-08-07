@@ -1,13 +1,9 @@
 import * as vscode from "vscode";
 import {PysysTreeItem, PysysProject, PysysWorkspace, PysysTest, PysysDirectory} from "./pysys";
 import {PysysRunner} from "../utils/pysysRunner";
-import {PysysTaskProvider, PysysTaskDefinition} from "../utils/pysysTaskProvider";
-import {pickWorkspaceFolder, pickDirectory} from "../utils/fsUtils";
+import {PysysTaskProvider} from "../utils/pysysTaskProvider";
+import {pickWorkspaceFolder, pickDirectory, createTaskConfig} from "../utils/fsUtils";
 import * as path from "path";
-import { promises } from "dns";
-import { O_DIRECTORY } from "constants";
-import { dir } from "console";
-import { loadavg } from "os";
 
 export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> {
 
@@ -20,19 +16,31 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
     private config: vscode.WorkspaceConfiguration;
     private interpreter: string | undefined;
 
+    private isFlatStructure: boolean;
+
     constructor(private logger: vscode.OutputChannel,
         private workspaces: vscode.WorkspaceFolder[],
-        private context?: vscode.ExtensionContext) {
+        private context: vscode.ExtensionContext) {
         
         this.config = vscode.workspace.getConfiguration("pysys"); 
         this.interpreter = this.config.get("defaultInterpreterPath");
-        workspaces.forEach( ws => this.workspaceList.push(new PysysWorkspace(ws.name,vscode.TreeItemCollapsibleState.Collapsed, ws, ws.uri.fsPath)));
         this.registerCommands();
-        this.taskProvider = new PysysTaskProvider(workspaces[0]);
+        this.buildStatusBar();
+        this.taskProvider = new PysysTaskProvider();
+
+        this.isFlatStructure = false;
+
+        const collapedState = workspaces.length === 1 ? 
+            vscode.TreeItemCollapsibleState.Expanded : 
+            vscode.TreeItemCollapsibleState.Collapsed;
+
+        workspaces.forEach( ws => this.workspaceList.push(
+            new PysysWorkspace(ws.name, collapedState , ws, ws.uri.fsPath,context.asAbsolutePath('resources'))
+        ));
 
         vscode.workspace.onDidChangeConfiguration(async e => {
 			if(e.affectsConfiguration('pysys.defaultInterpreterPath')) {
-				this.taskProvider = new PysysTaskProvider(workspaces[0]);
+				this.taskProvider = new PysysTaskProvider();
 			}
 		});
     }
@@ -49,7 +57,29 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
                         const folder = await pickWorkspaceFolder();
 
                         if (folder !== undefined) {
-                            const projectDir = await pickDirectory(folder.uri);
+
+                            const result = await vscode.window.showQuickPick([
+                                "$(diff-insert) Add project", 
+                                "$(file-directory) Use existing directory"
+                            ], {
+                                placeHolder: "Choose",
+                                ignoreFocusOut: true,
+                            });
+
+                            let projectDir: string | undefined;
+                            if (result === "$(diff-insert) Add project") {
+                                const projectName: string | undefined = await vscode.window.showInputBox({
+                                    placeHolder: "enter a project name"
+                                });
+
+                                if (projectName) {
+                                    projectDir = path.join(folder.uri.fsPath, projectName);
+                                    await vscode.workspace.fs.createDirectory(vscode.Uri.file(projectDir));
+                                }
+                            } else if (result === "$(file-directory) Use existing directory") {
+                                projectDir = await pickDirectory(folder.uri);
+                            }
+
                             if(projectDir) {
                                 let makeProjectCmd : PysysRunner= new PysysRunner("makeProject", `${this.interpreter}`, this.logger);
                                 let makeProject : string = await makeProjectCmd.run(projectDir,["makeproject"]);
@@ -161,8 +191,11 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
 
                 vscode.commands.registerCommand("pysys.runTest", async (element?: PysysTest) => {
                     if(element) {
+                        // to support flat view
+                        const label = element.label.split("/");
+
                         const task : vscode.Task | undefined =
-                            await this.taskProvider.runPysysTest(`${element.fsPath}`, element.ws, [element.label]);
+                            await this.taskProvider.runPysysTest(`${element.fsPath}`, element.ws, [label[label.length-1]]);
                         if(task) {
                             await vscode.tasks.executeTask(task);
                         }
@@ -175,6 +208,9 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
                         vscode.workspace.openTextDocument(setting)
                             .then(doc => {
                                 vscode.window.showTextDocument(doc);
+                            }, async reason => {
+                                await createTaskConfig(element.ws);
+                                vscode.commands.executeCommand("pysys.openTaskConfig", element);
                             });
                     }
                 }),
@@ -214,8 +250,61 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
                         term.show(false);
                     }
                 }),
+
+                vscode.commands.registerCommand("pysys.toggleFlatView", async (element?: PysysDirectory) => {
+                    if(element) {
+                        this.isFlatStructure = !this.isFlatStructure;
+                        this.refresh();
+                    }
+                }),
             ]);
         }
+    }
+
+    async buildStatusBar() {
+        if(this.context !== undefined) {
+            let versionCmd: PysysRunner = new PysysRunner("version", `${this.interpreter} --version`, this.logger);
+            let versionOutput: any = await versionCmd.run(".",[]);
+
+            let versionlines: string[]  = versionOutput.stdout.split("\n");
+            const pat : RegExp = new RegExp(/PySys.System.Test.Framework\s+\(version\s+([^\s]+)\s+on\s+Python\s+([^)]+)\)/);
+
+            let version: string | undefined;
+            for (let index: number = 0; index < versionlines.length; index++) {
+            const line : string = versionlines[index];
+                if ( pat.test(line) ) {
+                    version = RegExp.$1;
+                }
+            }
+
+            if(version) {
+                let statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+                statusBar.text = `Pysys ${version}`;
+                statusBar.show();
+                this.context.subscriptions.push(statusBar);
+            }
+        }
+    }
+
+    async listTests(ws: vscode.WorkspaceFolder): Promise<PysysTest[]> {
+        let testPattern: vscode.RelativePattern = new vscode.RelativePattern(ws.uri.fsPath, "**/pysystest.xml");
+        let testNames: vscode.Uri[] = await vscode.workspace.findFiles(testPattern);
+        let result: PysysTest[] = [];
+
+        testNames.forEach(test => {
+            const label: string = path.relative(ws.uri.fsPath, path.dirname(test.fsPath));
+            let current: PysysTest = new PysysTest(
+                label,
+                vscode.TreeItemCollapsibleState.None,
+                ws,
+                `${ws.uri.fsPath}/${label}`,
+                `${ws.uri.fsPath}/${label}`,
+                this.context.asAbsolutePath('resources')
+            );
+            result.push(current);
+        });
+
+        return result;
     }
 
     refresh(): void {
@@ -228,9 +317,14 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
     }
 
     async getChildren(element?: PysysDirectory | PysysProject | PysysWorkspace): Promise<undefined | PysysWorkspace[] | PysysProject[] | PysysTest[]> {
+
         if(element instanceof PysysWorkspace) {
-            element.items = await element.scanProjects();
-            return element.items;
+            if(this.isFlatStructure) {
+                return await this.listTests(element.ws);
+            } else {
+                element.items = await element.scanProjects();
+                return element.items;
+            }
         }
 
         else if(element instanceof PysysProject) {

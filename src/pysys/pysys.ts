@@ -1,7 +1,6 @@
 import * as vscode from "vscode";
 import * as path from "path";
-import { PysysRunner } from "../utils/pysysRunner";
-import { buildProjectDirectory, getStructure, structureType } from "../utils/fsUtils";
+import {  getStructure, structureType } from "../utils/fsUtils";
 
 export interface PysysTreeItem {
     label: string;
@@ -11,8 +10,8 @@ export interface PysysTreeItem {
     items: PysysTreeItem[];
     parent: string | undefined;
     contextValue: string;
+    resourceDir: string;
 }
-
 
 export class PysysTest extends vscode.TreeItem implements PysysTreeItem {
     constructor(
@@ -20,16 +19,17 @@ export class PysysTest extends vscode.TreeItem implements PysysTreeItem {
         public collapsibleState: vscode.TreeItemCollapsibleState,
         public ws: vscode.WorkspaceFolder,
         public parent: string,
-        public fsPath: string
-    ) {
+        public fsPath: string,
+        public resourceDir: string
+        ) {
         super(label, collapsibleState);
     }
     items: PysysTreeItem[] = [];
     contextValue = "test";
 
     iconPath = {
-        light: path.join(__filename, '..', '..', '..', 'resources', 'light', 'power.svg'),
-        dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', 'power.svg')
+        light: path.join(this.resourceDir, 'light', 'power.svg'),
+        dark: path.join(this.resourceDir, 'dark', 'power.svg')
     };
 }
 
@@ -40,6 +40,7 @@ export class PysysDirectory extends vscode.TreeItem implements PysysTreeItem {
         public ws: vscode.WorkspaceFolder,
         public parent: string,
         public fsPath: string,
+        public resourceDir: string,
         public items: PysysTest[]
     ) {
         super(label, collapsibleState);
@@ -47,8 +48,8 @@ export class PysysDirectory extends vscode.TreeItem implements PysysTreeItem {
     contextValue: string = "directory";
 
     iconPath = {
-        light: path.join(__filename, '..', '..', '..', 'resources', 'light', 'folder.svg'),
-        dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', 'folder.svg')
+        light: path.join(this.resourceDir, 'light', 'folder.svg'),
+        dark: path.join(this.resourceDir, 'dark', 'folder.svg')
     };
 
     async scanTestsAndDirectories(): Promise<(PysysDirectory | PysysTest)[]> {
@@ -67,6 +68,7 @@ export class PysysDirectory extends vscode.TreeItem implements PysysTreeItem {
                     this.ws,
                     this.parent,
                     `${this.fsPath}/${label}`,
+                    this.resourceDir,
                     []
                 ));
             } else {
@@ -75,7 +77,8 @@ export class PysysDirectory extends vscode.TreeItem implements PysysTreeItem {
                     vscode.TreeItemCollapsibleState.None,
                     this.ws,
                     this.parent,
-                    `${this.fsPath}/${label}`
+                    `${this.fsPath}/${label}`,
+                    this.resourceDir
                 ));
             }
         }
@@ -91,7 +94,8 @@ export class PysysProject extends vscode.TreeItem implements PysysTreeItem {
         public collapsibleState: vscode.TreeItemCollapsibleState,
         public ws: vscode.WorkspaceFolder,
         public parent: string,
-        public fsPath: string
+        public fsPath: string,
+        public resourceDir: string
     ) {
         super(label, collapsibleState);
     }
@@ -100,8 +104,8 @@ export class PysysProject extends vscode.TreeItem implements PysysTreeItem {
     contextValue: string = "project";
 
     iconPath = {
-        light: path.join(__filename, '..', '..', '..', 'resources', 'light', 'project.svg'),
-        dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', 'project.svg')
+        light: path.join(this.resourceDir, 'light', 'project.svg'),
+        dark: path.join(this.resourceDir, 'dark', 'project.svg')
     };
 
     
@@ -123,6 +127,7 @@ export class PysysProject extends vscode.TreeItem implements PysysTreeItem {
                     this.ws,
                     this.fsPath,
                     `${this.fsPath}/${label}`,
+                    this.resourceDir,
                     []
                 ));
             } else {
@@ -131,7 +136,8 @@ export class PysysProject extends vscode.TreeItem implements PysysTreeItem {
                     vscode.TreeItemCollapsibleState.None,
                     this.ws,
                     this.fsPath,
-                    `${this.fsPath}/${label}`
+                    `${this.fsPath}/${label}`,
+                    this.resourceDir
                 ));
             }
         }
@@ -150,6 +156,7 @@ export class PysysWorkspace extends vscode.TreeItem implements PysysTreeItem {
         public collapsibleState: vscode.TreeItemCollapsibleState,
         public ws: vscode.WorkspaceFolder,
         public fsPath: string,
+        public resourceDir: string
     ) {
         super(label, collapsibleState);
     }
@@ -159,8 +166,8 @@ export class PysysWorkspace extends vscode.TreeItem implements PysysTreeItem {
     parent = undefined;
 
     iconPath = {
-        light: path.join(__filename, '..', '..', '..', 'resources', 'light', 'folder.svg'),
-        dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', 'folder.svg')
+        light: path.join(this.resourceDir, 'light', 'folder.svg'),
+        dark: path.join(this.resourceDir, 'dark', 'folder.svg')
     };
 
     async scanProjects(): Promise<PysysProject[]> {
@@ -179,7 +186,8 @@ export class PysysWorkspace extends vscode.TreeItem implements PysysTreeItem {
                 vscode.TreeItemCollapsibleState.Collapsed,
                 this.ws,
                 `${this.fsPath}/${label}`,
-                `${this.fsPath}/${label}`
+                `${this.fsPath}/${label}`,
+                this.resourceDir
             );
             result.push(current);
         }

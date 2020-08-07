@@ -2,16 +2,17 @@ import * as vscode from "vscode";
 import semver = require("semver");
 
 import {PysysProjectView} from "./pysys/pysysView";
-import { PysysRunner } from "./utils/pysysRunner";
 import { PysysEnvironment } from "./utils/pysysEnvironment";
 import { PysysTaskProvider } from "./utils/pysysTaskProvider";
+
+
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
 
 	const logger: vscode.OutputChannel = vscode.window.createOutputChannel("Pysys Extension");
 	logger.show();
 	logger.appendLine("Started Pysys Extension");
-
+	logger.appendLine(vscode.env.remoteName || "local");
 	const pysysEnv = new PysysEnvironment(logger);
 
 	// todo: here we need to also check for Apama - we can do this by checking to see if the extension
@@ -37,7 +38,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 			new PysysProjectView(logger, myClonedArray, context)
 		);
 		
-		const taskprov = new PysysTaskProvider(myClonedArray[0]);
+		const taskprov = new PysysTaskProvider();
 		context.subscriptions.push(vscode.tasks.registerTaskProvider("pysys", taskprov));
 	}
 }
