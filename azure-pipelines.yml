@@ -34,7 +34,7 @@ steps:
 - bash: |
     echo ">>> Compile pysys-vscode-extension"
     cd resources && git submodule init && git submodule update
-    yarn && yarn pretest && yarn test 
+    yarn && yarn pretest
     echo ">>> Compiled pysys-vscode-extension"
   displayName: Build Extension
   env:

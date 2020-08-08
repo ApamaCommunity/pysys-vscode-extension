@@ -29,7 +29,7 @@
 			"properties": {
 				"pysys.defaultInterpreterPath": {
 					"type": "string",
-					"description": "Path to Python that has Pysys installed, when the extension starts this will be set for the workspace"
+					"description": "Path to Python that has Pysys installed. The extension will attempt to set this, but the value can be overidden manually."
 				}
 			}
 		},
@@ -292,7 +292,6 @@
 		"vscode:prepublish": "webpack --mode production && npm run lint",
 		"lint": "eslint src --ext ts",
 		"pretest": "npm run webpack && npm run lint",
-		"test": "node ./out/test/runTest.js",
 		"webpack": "webpack --mode development",
 		"webpack --watch": "webpack --mode development --watch"
 	},
