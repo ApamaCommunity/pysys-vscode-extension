@@ -1,6 +1,7 @@
 {
 	"publisher": "cariboujohn",
 	"name": "pysys-vscode-extension",
+	"license": "(Apache-2.0)",
 	"author": {
 		"name": "Yoav Nir & John Heath",
 		"email": "john.heath@softwareag.com"
@@ -291,7 +292,7 @@
 	"scripts": {
 		"vscode:prepublish": "webpack --mode production && npm run lint",
 		"lint": "eslint src --ext ts",
-		"pretest": "npm run webpack && npm run lint",
+		"pretest": "yarn --ignore-engines webpack && yarn --ignore-engines lint",
 		"webpack": "webpack --mode development",
 		"webpack --watch": "webpack --mode development --watch"
 	},
