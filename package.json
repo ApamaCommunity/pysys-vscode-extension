@@ -25,11 +25,11 @@
 	"main": "./out/extension",
 	"contributes": {
 		"configuration": {
-			"title": "Pysys",
+			"title": "Python interpeter for Pysys",
 			"properties": {
 				"pysys.defaultInterpreterPath": {
 					"type": "string",
-					"description": "Path to Pysys, can be modified to include a full path"
+					"description": "Path to Python that has Pysys installed, when the extension starts this will be set for the workspace"
 				}
 			}
 		},
@@ -289,11 +289,9 @@
 		}
 	},
 	"scripts": {
-		"vscode:prepublish": "webpack --mode production",
-		"compile": "tsc -p ./",
+		"vscode:prepublish": "webpack --mode production && npm run lint",
 		"lint": "eslint src --ext ts",
-		"watch": "tsc -watch -p ./",
-		"pretest": "npm run compile && npm run lint",
+		"pretest": "npm run webpack && npm run lint",
 		"test": "node ./out/test/runTest.js",
 		"webpack": "webpack --mode development",
 		"webpack --watch": "webpack --mode development --watch"
