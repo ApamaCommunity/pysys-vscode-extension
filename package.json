@@ -65,13 +65,14 @@
 				"name": "pysys",
 				"owner": "pysys",
 				"fileLocation": [
-					"relative",
-					"${workspaceFolder}"
+					"absolute"
 				],
 				"pattern": {
-					"regexp": "(FAILED)\\:\\s+([a-zA-Z0-9_\r\n]*)",
+					"regexp": "^([A-Za-z]:)?([^:]+):(\\d+):\\s([^:]+):(.*)$",
 					"file": 2,
-					"message": 1
+					"line": 3,
+					"severity": 4,
+					"message": 5
 				}
 			}
 		],
