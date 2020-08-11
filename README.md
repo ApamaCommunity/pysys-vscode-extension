@@ -11,24 +11,25 @@ For more information about PySys please visit the [PySys project page](https://p
 
 ## Features
 
+![overview](images/example_screen1.png)
+
 * See your PySys project structure at a quick glance
 * Create and run tests directly from the UI
 * Set custom arguments with which to run your tests
-* Test failures are displayed in the vscode problems tab
-
-![overview](images/example_screen1.png)
+![problems tab](images/custom_settings.png)
+* From PySys 1.6 Test failures are displayed in the vscode problems tab
+![problems tab](images/probtab.png)
+* show the tests as a flat structure or in tree form
+![flat toggle](images/flat.gif)
 
 ## Requirements
 
 Python and the PySys framework are required to use this extension.
 
-## Settings
+The extension will use the python and pysys that are currently on the path. The status bar will show the version of PySys found.
+![problems tab](images/version.png)
 
-![settings](images/settings.png)
-
-* **PySys Interpreter :** the default PySys interpreter the application will use.
-
-***
+___The extension will not load if python or PySys are not detected.___
 
 ## PySys view
 
@@ -59,3 +60,7 @@ Run projects, directories or individual tests with default settings.
 Or set your own settings for running projects or directories, such as setting custom run arguments.
 
 ![custom](images/custom.gif)
+
+Finally if you use PySys 1.6+ the output of your runs will be automatically shown in the problems tab of vscode. These problems can then be used to navigate to the source of the error.
+
+![problems](images/problems.gif)

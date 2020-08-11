@@ -1,11 +1,8 @@
 import * as vscode from "vscode";
-import semver = require("semver");
 
 import {PysysProjectView} from "./pysys/pysysView";
-import { PysysEnvironment } from "./utils/pysysEnvironment";
+import { PysysRunner } from "./utils/pysysRunner";
 import { PysysTaskProvider } from "./utils/pysysTaskProvider";
-
-
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
 
@@ -13,34 +10,43 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 	logger.show();
 	logger.appendLine("Started Pysys Extension");
 	logger.appendLine(vscode.env.remoteName || "local");
-	const pysysEnv = new PysysEnvironment(logger);
-
-	// todo: here we need to also check for Apama - we can do this by checking to see if the extension
-	// configuration exists - softwareag.apama.apamahome
-	// if it does, we can try the test below to see if we can run with no modifications
-	// otherwise we should ask whether to use the python/pysys included in here
-	// we would do this by setting up the commands to run similarly to the apama extension where
-	// we source the environment && run the command
-
-	// check config
-	// check user prefs - need to save them
-	// set up commands similar to apama extension (use them in PysysRunner instead of hard coded ones)
-
-	// semver.lt(corrVersion , "10.5.3") - we can use semver to restrict capabilities if required.
-	// we should consider adding an element to the status bar at the bottom to show what versions
-	// we are running with
-
-	if(vscode.workspace.workspaceFolders !== undefined) {
+	let tprov: PysysTaskProvider | undefined = await buildStatusBar(logger,context);
+	if(vscode.workspace.workspaceFolders !== undefined && tprov !== undefined) {
 		const myClonedArray : vscode.WorkspaceFolder[] = [...vscode.workspace.workspaceFolders];
-
 		vscode.window.registerTreeDataProvider(
 			"pysysProjects",
-			new PysysProjectView(logger, myClonedArray, context)
+			new PysysProjectView(logger, myClonedArray, context,tprov)
 		);
-		
-		const taskprov = new PysysTaskProvider();
-		context.subscriptions.push(vscode.tasks.registerTaskProvider("pysys", taskprov));
 	}
+}
+async function buildStatusBar(logger: vscode.OutputChannel, context: vscode.ExtensionContext) : Promise<PysysTaskProvider|undefined> {
+	if(context !== undefined) {
+		let interpreter = " python -m pysys "; //default - no longer configurable 
+		let versionCmd: PysysRunner = new PysysRunner("version", `${interpreter} --version`, logger);
+		let versionOutput: any = await versionCmd.run(".",[]);
+		let version = "";
+		let versionlines: string[]  = versionOutput.stdout.split("\n");
+		const pat : RegExp = new RegExp(/PySys.System.Test.Framework\s+\(version\s+([^\s]+)\s+on\s+Python\s+([^)]+)\)/);
+
+		
+		for (let index: number = 0; index < versionlines.length; index++) {
+		const line : string = versionlines[index];
+			if ( pat.test(line) ) {
+				version = RegExp.$1;
+			}
+		}
+
+		if(version) {
+			let statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+			statusBar.text = `Pysys ${version}`;
+			statusBar.show();
+			context.subscriptions.push(statusBar);        
+			let taskProvider = new PysysTaskProvider(version);
+			context.subscriptions.push(vscode.tasks.registerTaskProvider("pysys", taskProvider));
+			return taskProvider;
+		}
+	}
+	return undefined;
 }
 
 export function deactivate():void {

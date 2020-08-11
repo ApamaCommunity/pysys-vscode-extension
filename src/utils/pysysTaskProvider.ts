@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
-import { config } from "process";
 import { PysysDirectory, PysysProject } from "../pysys/pysys";
 import path = require("path");
+import semver = require("semver");
 
 export interface PysysTaskDefinition extends vscode.TaskDefinition {
     type: string;
@@ -16,11 +16,13 @@ export interface PysysTaskDefinition extends vscode.TaskDefinition {
 export class PysysTaskProvider implements vscode.TaskProvider {
 
     private config: vscode.WorkspaceConfiguration;
-    private interpreter: string | undefined;
+    private interpreter: string;
+    public version: string;
 
-    constructor() { 
+    constructor(version: string) { 
         this.config = vscode.workspace.getConfiguration("pysys"); 
-        this.interpreter = this.config.get("defaultInterpreterPath");
+        this.interpreter = ' python -m pysys ';
+        this.version = version;
     }
 
     provideTasks(): vscode.ProviderResult<vscode.Task[]> {
@@ -32,6 +34,16 @@ export class PysysTaskProvider implements vscode.TaskProvider {
         if(task) {
             const definition: PysysTaskDefinition = <any>_task.definition;
 
+            if( semver.lt(this.version,"1.6.0") ){
+                return new vscode.Task(
+                    definition,
+                    definition.task,
+                    "pysys",
+                    new vscode.ShellExecution(`${this.interpreter} ${definition.task} ${definition.extraargs.join(' ')}`, {
+                        cwd: definition.cwd
+                    })
+                );
+            }
             return new vscode.Task(
                 definition,
                 definition.task,
@@ -39,7 +51,8 @@ export class PysysTaskProvider implements vscode.TaskProvider {
                 new vscode.ShellExecution(`${this.interpreter} ${definition.task} ${definition.extraargs.join(' ')}`, {
                     cwd: definition.cwd,
                     env: {PYSYS_CONSOLE_FAILURE_ANNOTATIONS: '@testFile@:@testFileLine@: @category@: @outcome@ - @outcomeReason@ (@testIdAndCycle@)' }
-                })
+                }),
+                "$pysys"
             );
         }
         return undefined;
@@ -117,19 +130,34 @@ export class PysysTaskProvider implements vscode.TaskProvider {
             }
         }
         if(folder) {
-            let task : vscode.Task = new vscode.Task(
-                {type: "pysys", task: "run"},
-                folder,
-                "pysys run",
-                "pysys",
-                new vscode.ShellExecution(`${this.interpreter} run ${localargs.join(" ")}`, [], {
-                    cwd,
-                    env: {PYSYS_CONSOLE_FAILURE_ANNOTATIONS: '@testFile@:@testFileLine@: @category@: @outcome@ - @outcomeReason@ (@testIdAndCycle@)' }
-                }),
-                ["pysys"]
-            );
-            task.group = "test";
-            return task;
+            if( semver.lt(this.version,"1.6.0") ){
+                let task : vscode.Task = new vscode.Task(
+                    {type: "pysys", task: "run"},
+                    folder,
+                    "pysys run",
+                    "pysys",
+                    new vscode.ShellExecution(`${this.interpreter} run ${localargs.join(" ")}`, [], {
+                        cwd
+                    }),
+                    []
+                );
+                task.group = "test";
+                return task;
+            } else {
+                let task : vscode.Task = new vscode.Task(
+                    {type: "pysys", task: "run"},
+                    folder,
+                    "pysys run",
+                    "pysys",
+                    new vscode.ShellExecution(`${this.interpreter} run ${localargs.join(" ")}`, [], {
+                        cwd,
+                        env: {PYSYS_CONSOLE_FAILURE_ANNOTATIONS: '@testFile@:@testFileLine@: @category@: @outcome@ - @outcomeReason@ (@testIdAndCycle@)' }
+                    }),
+                    ["pysys"]
+                );
+                task.group = "test";
+                return task;
+            }
         }
 		return undefined;
     }

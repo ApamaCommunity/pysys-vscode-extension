@@ -4,6 +4,7 @@ import {PysysRunner} from "../utils/pysysRunner";
 import {PysysTaskProvider} from "../utils/pysysTaskProvider";
 import {pickWorkspaceFolder, pickDirectory, createTaskConfig} from "../utils/fsUtils";
 import * as path from "path";
+import semver = require("semver");
 
 export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> {
 
@@ -11,22 +12,18 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
 	readonly onDidChangeTreeData: vscode.Event<PysysTreeItem | undefined> = this._onDidChangeTreeData.event;
 
     private workspaceList: PysysWorkspace[] = [];
-    private taskProvider: PysysTaskProvider;
 
-    private config: vscode.WorkspaceConfiguration;
     private interpreter: string | undefined;
 
     private isFlatStructure: boolean;
 
     constructor(private logger: vscode.OutputChannel,
         private workspaces: vscode.WorkspaceFolder[],
-        private context: vscode.ExtensionContext) {
+        private context: vscode.ExtensionContext,
+        private taskProvider: PysysTaskProvider) {
         
-        this.config = vscode.workspace.getConfiguration("pysys"); 
-        this.interpreter = this.config.get("defaultInterpreterPath");
+        this.interpreter = " python -m pysys ";
         this.registerCommands();
-        this.buildStatusBar();
-        this.taskProvider = new PysysTaskProvider();
 
         this.isFlatStructure = false;
 
@@ -37,12 +34,6 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
         workspaces.forEach( ws => this.workspaceList.push(
             new PysysWorkspace(ws.name, collapedState , ws, ws.uri.fsPath,context.asAbsolutePath('resources'))
         ));
-
-        vscode.workspace.onDidChangeConfiguration(async e => {
-			if(e.affectsConfiguration('pysys.defaultInterpreterPath')) {
-				this.taskProvider = new PysysTaskProvider();
-			}
-		});
     }
 
     registerCommands(): void {
@@ -258,31 +249,6 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
                     }
                 }),
             ]);
-        }
-    }
-
-    async buildStatusBar() {
-        if(this.context !== undefined) {
-            let versionCmd: PysysRunner = new PysysRunner("version", `${this.interpreter} --version`, this.logger);
-            let versionOutput: any = await versionCmd.run(".",[]);
-
-            let versionlines: string[]  = versionOutput.stdout.split("\n");
-            const pat : RegExp = new RegExp(/PySys.System.Test.Framework\s+\(version\s+([^\s]+)\s+on\s+Python\s+([^)]+)\)/);
-
-            let version: string | undefined;
-            for (let index: number = 0; index < versionlines.length; index++) {
-            const line : string = versionlines[index];
-                if ( pat.test(line) ) {
-                    version = RegExp.$1;
-                }
-            }
-
-            if(version) {
-                let statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
-                statusBar.text = `Pysys ${version}`;
-                statusBar.show();
-                this.context.subscriptions.push(statusBar);
-            }
         }
     }
 
