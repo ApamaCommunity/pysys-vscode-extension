@@ -31,12 +31,14 @@ export class PysysTaskProvider implements vscode.TaskProvider {
         const task: vscode.Task = _task.definition.task;
         if(task) {
             const definition: PysysTaskDefinition = <any>_task.definition;
+
             return new vscode.Task(
                 definition,
                 definition.task,
                 "pysys",
                 new vscode.ShellExecution(`${this.interpreter} ${definition.task} ${definition.extraargs.join(' ')}`, {
-                    cwd: definition.cwd
+                    cwd: definition.cwd,
+                    env: {PYSYS_CONSOLE_FAILURE_ANNOTATIONS: '@testFile@:@testFileLine@: @category@: @outcome@ - @outcomeReason@ (@testIdAndCycle@)' }
                 })
             );
         }
@@ -121,7 +123,8 @@ export class PysysTaskProvider implements vscode.TaskProvider {
                 "pysys run",
                 "pysys",
                 new vscode.ShellExecution(`${this.interpreter} run ${localargs.join(" ")}`, [], {
-                    cwd
+                    cwd,
+                    env: {PYSYS_CONSOLE_FAILURE_ANNOTATIONS: '@testFile@:@testFileLine@: @category@: @outcome@ - @outcomeReason@ (@testIdAndCycle@)' }
                 }),
                 ["pysys"]
             );
