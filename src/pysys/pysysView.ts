@@ -22,7 +22,7 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
         private context: vscode.ExtensionContext,
         private taskProvider: PysysTaskProvider) {
         
-        this.interpreter = " python3 -m pysys ";
+        this.interpreter = " python -m pysys ";
         this.registerCommands();
 
         this.isFlatStructure = false;
@@ -183,10 +183,10 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
                 vscode.commands.registerCommand("pysys.runTest", async (element?: PysysTest) => {
                     if(element) {
                         // to support flat view
-                        const label = element.label.split("/");
+                        const label = path.basename(element.label);
 
                         const task : vscode.Task | undefined =
-                            await this.taskProvider.runPysysTest(`${element.fsPath}`, element.ws, [label[label.length-1]]);
+                            await this.taskProvider.runPysysTest(`${element.fsPath}`, element.ws, [label]);
                         if(task) {
                             await vscode.tasks.executeTask(task);
                         }
