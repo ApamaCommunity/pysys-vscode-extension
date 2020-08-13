@@ -22,7 +22,7 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
         private context: vscode.ExtensionContext,
         private taskProvider: PysysTaskProvider) {
         
-        this.interpreter = " python -m pysys ";
+        this.interpreter = " python3 -m pysys ";
         this.registerCommands();
 
         this.isFlatStructure = false;
@@ -263,8 +263,8 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
                 label,
                 vscode.TreeItemCollapsibleState.None,
                 ws,
-                `${ws.uri.fsPath}/${label}`,
-                `${ws.uri.fsPath}/${label}`,
+                path.join(ws.uri.fsPath, label),
+                path.join(ws.uri.fsPath, label),
                 this.context.asAbsolutePath('resources')
             );
             result.push(current);

@@ -21,7 +21,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 }
 async function buildStatusBar(logger: vscode.OutputChannel, context: vscode.ExtensionContext) : Promise<PysysTaskProvider|undefined> {
 	if(context !== undefined) {
-		let interpreter = " python -m pysys "; //default - no longer configurable 
+		let interpreter = " python3 -m pysys "; //default - no longer configurable 
 		let versionCmd: PysysRunner = new PysysRunner("version", `${interpreter} --version`, logger);
 		let versionOutput: any = await versionCmd.run(".",[]);
 		let version = "";

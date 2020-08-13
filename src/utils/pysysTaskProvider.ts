@@ -21,7 +21,7 @@ export class PysysTaskProvider implements vscode.TaskProvider {
 
     constructor(version: string) { 
         this.config = vscode.workspace.getConfiguration("pysys"); 
-        this.interpreter = ' python -m pysys ';
+        this.interpreter = ' python3 -m pysys ';
         this.version = version;
     }
 

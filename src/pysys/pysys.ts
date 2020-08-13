@@ -67,7 +67,7 @@ export class PysysDirectory extends vscode.TreeItem implements PysysTreeItem {
                     vscode.TreeItemCollapsibleState.Collapsed,
                     this.ws,
                     this.parent,
-                    `${this.fsPath}/${label}`,
+                    path.join(this.fsPath, label),
                     this.resourceDir,
                     []
                 ));
@@ -77,7 +77,7 @@ export class PysysDirectory extends vscode.TreeItem implements PysysTreeItem {
                     vscode.TreeItemCollapsibleState.None,
                     this.ws,
                     this.parent,
-                    `${this.fsPath}/${label}`,
+                    path.join(this.fsPath, label),
                     this.resourceDir
                 ));
             }
@@ -126,7 +126,7 @@ export class PysysProject extends vscode.TreeItem implements PysysTreeItem {
                     vscode.TreeItemCollapsibleState.Collapsed,
                     this.ws,
                     this.fsPath,
-                    `${this.fsPath}/${label}`,
+                    path.join(this.fsPath, label),
                     this.resourceDir,
                     []
                 ));
@@ -136,7 +136,7 @@ export class PysysProject extends vscode.TreeItem implements PysysTreeItem {
                     vscode.TreeItemCollapsibleState.None,
                     this.ws,
                     this.fsPath,
-                    `${this.fsPath}/${label}`,
+                    path.join(this.fsPath, label),
                     this.resourceDir
                 ));
             }
@@ -185,8 +185,8 @@ export class PysysWorkspace extends vscode.TreeItem implements PysysTreeItem {
                 label,
                 vscode.TreeItemCollapsibleState.Collapsed,
                 this.ws,
-                `${this.fsPath}/${label}`,
-                `${this.fsPath}/${label}`,
+                path.join(this.fsPath, label),
+                path.join(this.fsPath, label),
                 this.resourceDir
             );
             result.push(current);
