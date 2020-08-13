@@ -183,10 +183,10 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
                 vscode.commands.registerCommand("pysys.runTest", async (element?: PysysTest) => {
                     if(element) {
                         // to support flat view
-                        const label = element.label.split("/");
+                        const label = path.basename(element.label);
 
                         const task : vscode.Task | undefined =
-                            await this.taskProvider.runPysysTest(`${element.fsPath}`, element.ws, [label[label.length-1]]);
+                            await this.taskProvider.runPysysTest(`${element.fsPath}`, element.ws, [label]);
                         if(task) {
                             await vscode.tasks.executeTask(task);
                         }
@@ -263,8 +263,8 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
                 label,
                 vscode.TreeItemCollapsibleState.None,
                 ws,
-                `${ws.uri.fsPath}/${label}`,
-                `${ws.uri.fsPath}/${label}`,
+                path.join(ws.uri.fsPath, label),
+                path.join(ws.uri.fsPath, label),
                 this.context.asAbsolutePath('resources')
             );
             result.push(current);
