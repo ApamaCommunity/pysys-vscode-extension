@@ -7,6 +7,8 @@ import { PysysTaskProvider } from "./utils/pysysTaskProvider";
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
 
 	const logger: vscode.OutputChannel = vscode.window.createOutputChannel("Pysys Extension");
+	const interpreter: string = await getPysysInterpreter(logger);
+
 	logger.show();
 	logger.appendLine("Started Pysys Extension");
 	logger.appendLine(vscode.env.remoteName || "local");
@@ -15,13 +17,14 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 		const myClonedArray : vscode.WorkspaceFolder[] = [...vscode.workspace.workspaceFolders];
 		vscode.window.registerTreeDataProvider(
 			"pysysProjects",
-			new PysysProjectView(logger, myClonedArray, context,tprov)
+			new PysysProjectView(logger, myClonedArray, context,tprov, interpreter)
 		);
 	}
 }
+
 async function buildStatusBar(logger: vscode.OutputChannel, context: vscode.ExtensionContext) : Promise<PysysTaskProvider|undefined> {
 	if(context !== undefined) {
-		let interpreter = " python -m pysys "; //default - no longer configurable 
+		let interpreter = await getPysysInterpreter(logger);
 		let versionCmd: PysysRunner = new PysysRunner("version", `${interpreter} --version`, logger);
 		let versionOutput: any = await versionCmd.run(".",[]);
 		let version = "";
@@ -30,7 +33,7 @@ async function buildStatusBar(logger: vscode.OutputChannel, context: vscode.Exte
 
 		
 		for (let index: number = 0; index < versionlines.length; index++) {
-		const line : string = versionlines[index];
+			const line : string = versionlines[index];
 			if ( pat.test(line) ) {
 				version = RegExp.$1;
 			}
@@ -41,12 +44,68 @@ async function buildStatusBar(logger: vscode.OutputChannel, context: vscode.Exte
 			statusBar.text = `Pysys ${version}`;
 			statusBar.show();
 			context.subscriptions.push(statusBar);        
-			let taskProvider = new PysysTaskProvider(version);
+			let taskProvider = new PysysTaskProvider(version, interpreter);
 			context.subscriptions.push(vscode.tasks.registerTaskProvider("pysys", taskProvider));
 			return taskProvider;
 		}
 	}
 	return undefined;
+}
+
+async function getPysysInterpreter(logger: vscode.OutputChannel): Promise<string> {
+	let pysysVersion: string = "";
+	let cmds: string[] = ["python", "py -3", "python3"];
+
+	let errorMessage: string = "No python installation found, please visit https://www.python.org/downloads/";
+	for(let cmd of cmds) {
+		try {
+			let versionCmd: PysysRunner = new PysysRunner("version", `${cmd} -V`, logger);
+			let versionOutput: any = await versionCmd.run(".",[]);
+
+			let version: string = versionOutput.stdout.match(/([.-9])+/g)[0];
+
+			if(version > "3.7") {
+				let pysysVersionCmd: PysysRunner = new PysysRunner("pysys version", `${cmd} -m pysys -V`, logger);
+				let installed: boolean;
+				try {
+					let versionOutput: any = await pysysVersionCmd.run(".",[]);
+					return `${cmd} -m pysys`;
+				} catch (e) {}
+				
+				installed = await installPysys(cmd, logger);
+				if(installed) {
+					return `${cmd} -m pysys`;
+				} else {
+					errorMessage = "Pysys not installed";
+					break;
+				}
+			}
+			
+		} catch (e) {
+			continue;
+		}
+	}
+
+	vscode.window.showErrorMessage(errorMessage);
+	throw Error("could not resolve a pysys installation");
+}
+
+async function installPysys(pythonCmd: string, logger: vscode.OutputChannel): Promise<boolean> {
+	try {
+		const choice = await vscode.window.showInformationMessage(
+			"Pysys not found, would you like to install it ?",
+			"Install Pysys", "ignore");   
+		
+		if(choice === "Install Pysys") {
+			let installCmd : PysysRunner= new PysysRunner("install", `${pythonCmd} -m pip install --user`, logger);
+			let install : string = await installCmd.run(".",["pysys"]);
+			vscode.window.showInformationMessage("Pysys installed!");
+			return true;
+		}
+	} catch (e) {
+		vscode.window.showErrorMessage(e);
+	}
+	return false;
 }
 
 export function deactivate():void {
