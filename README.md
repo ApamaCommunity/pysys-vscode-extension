@@ -16,10 +16,15 @@ For more information about PySys please visit the [PySys project page](https://p
 * See your PySys project structure at a quick glance
 * Create and run tests directly from the UI
 * Set custom arguments with which to run your tests
+
 ![problems tab](images/custom_settings.png)
+
 * From PySys 1.6 Test failures are displayed in the vscode problems tab
+
 ![problems tab](images/probtab.png)
+
 * show the tests as a flat structure or in tree form
+
 ![flat toggle](images/flat.gif)
 
 ## Requirements
