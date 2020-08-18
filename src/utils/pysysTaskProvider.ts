@@ -19,9 +19,9 @@ export class PysysTaskProvider implements vscode.TaskProvider {
     private interpreter: string;
     public version: string;
 
-    constructor(version: string) { 
-        this.config = vscode.workspace.getConfiguration("pysys"); 
-        this.interpreter = ' python -m pysys ';
+    constructor(version: string, interpreter: string) {
+        this.config = vscode.workspace.getConfiguration("pysys");
+        this.interpreter = interpreter;
         this.version = version;
     }
 
@@ -31,10 +31,10 @@ export class PysysTaskProvider implements vscode.TaskProvider {
 
     resolveTask(_task: vscode.Task): vscode.Task | undefined {
         const task: vscode.Task = _task.definition.task;
-        if(task) {
+        if (task) {
             const definition: PysysTaskDefinition = <any>_task.definition;
 
-            if( semver.lt(this.version,"1.6.0") ){
+            if (semver.lt(this.version, "1.6.0")) {
                 return new vscode.Task(
                     definition,
                     definition.task,
@@ -50,7 +50,7 @@ export class PysysTaskProvider implements vscode.TaskProvider {
                 "pysys",
                 new vscode.ShellExecution(`${this.interpreter} ${definition.task} ${definition.extraargs.join(' ')}`, {
                     cwd: definition.cwd,
-                    env: {PYSYS_CONSOLE_FAILURE_ANNOTATIONS: '@testFile@:@testFileLine@: @category@: @outcome@ - @outcomeReason@ (@testIdAndCycle@)' }
+                    env: { PYSYS_CONSOLE_FAILURE_ANNOTATIONS: '@testFile@:@testFileLine@: @category@: @outcome@ - @outcomeReason@ (@testIdAndCycle@)' }
                 }),
                 "$pysys"
             );
@@ -60,22 +60,24 @@ export class PysysTaskProvider implements vscode.TaskProvider {
 
     private runTest() {
         const task = new vscode.Task(
-            {"type": "pysys",
-            "task": "run",
-            "cwd": "path_to/{PYSYS_PROJECT}",
-            "project": "{PYSYS_PROJECT}",
-            "extraargs": []},
+            {
+                "type": "pysys",
+                "task": "run",
+                "cwd": "path_to/{PYSYS_PROJECT}",
+                "project": "{PYSYS_PROJECT}",
+                "extraargs": []
+            },
             "run",
             "pysys",
             new vscode.ShellExecution(`${this.interpreter} run --help`),
             []
-          );
-          task.group = 'pysys';
-          return task;
+        );
+        task.group = 'pysys';
+        return task;
     }
 
     public async writeTaskConfig(definition: PysysTaskDefinition, ws: vscode.WorkspaceFolder) {
-        const taskFile: string = path.join(ws.uri.fsPath,'.vscode','tasks.json');
+        const taskFile: string = path.join(ws.uri.fsPath, '.vscode', 'tasks.json');
         const taskFileURI = vscode.Uri.file(taskFile);
         let contents: string = '{\"version\": \"2.0.0\",\"tasks\": []}'; //default if !exists
         let tfExists: boolean;
@@ -85,54 +87,54 @@ export class PysysTaskProvider implements vscode.TaskProvider {
             let doc = await vscode.workspace.openTextDocument(taskFileURI);
             contents = doc.getText(); //get existing
             tfExists = true;
-        } catch( err ) {
+        } catch (err) {
             tfExists = false;
         }
 
         const config = JSON.parse(contents);
 
-        for(let task of config.tasks) {
-            if(task.label === definition.label) {
+        for (let task of config.tasks) {
+            if (task.label === definition.label) {
                 return;
             }
         }
         config.tasks.push(definition);
 
         if (config) {
-            if( tfExists ) {
+            if (tfExists) {
                 vscode.workspace.fs.writeFile(taskFileURI, Buffer.from(JSON.stringify(config, null, 4), 'utf8'));
             } else {
                 const wsedit = new vscode.WorkspaceEdit();
                 await wsedit.createFile(taskFileURI, { ignoreIfExists: true });
-                await wsedit.insert(taskFileURI,new vscode.Position(0,0),JSON.stringify(config, null, 4));
+                await wsedit.insert(taskFileURI, new vscode.Position(0, 0), JSON.stringify(config, null, 4));
                 await vscode.workspace.applyEdit(wsedit);
             }
             vscode.window.showTextDocument(taskFileURI);
-        }    
+        }
     }
 
-    public async runPysysTest(cwd: string, workspace?: vscode.WorkspaceFolder, extraargs?:string[]): Promise<vscode.Task | undefined> {
-		// let localargs : string[] = this.config.args.concat(['-p',this.config.port.toString()]);
+    public async runPysysTest(cwd: string, workspace?: vscode.WorkspaceFolder, extraargs?: string[]): Promise<vscode.Task | undefined> {
+        // let localargs : string[] = this.config.args.concat(['-p',this.config.port.toString()]);
         // console.log(extraargs);
         let localargs: string[] = [];
-		if( extraargs ) {
-		    localargs = extraargs;
+        if (extraargs) {
+            localargs = extraargs;
         }
 
         let folder: vscode.WorkspaceFolder | undefined;
-        if(workspace) {
+        if (workspace) {
             folder = workspace;
         } else {
-            if( vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length === 1) {
+            if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length === 1) {
                 folder = vscode.workspace.workspaceFolders[0];
             } else {
                 folder = await vscode.window.showWorkspaceFolderPick();
             }
         }
-        if(folder) {
-            if( semver.lt(this.version,"1.6.0") ){
-                let task : vscode.Task = new vscode.Task(
-                    {type: "pysys", task: "run"},
+        if (folder) {
+            if (semver.lt(this.version, "1.6.0")) {
+                let task: vscode.Task = new vscode.Task(
+                    { type: "pysys", task: "run" },
                     folder,
                     "pysys run",
                     "pysys",
@@ -144,14 +146,14 @@ export class PysysTaskProvider implements vscode.TaskProvider {
                 task.group = "test";
                 return task;
             } else {
-                let task : vscode.Task = new vscode.Task(
-                    {type: "pysys", task: "run"},
+                let task: vscode.Task = new vscode.Task(
+                    { type: "pysys", task: "run" },
                     folder,
                     "pysys run",
                     "pysys",
                     new vscode.ShellExecution(`${this.interpreter} run ${localargs.join(" ")}`, [], {
                         cwd,
-                        env: {PYSYS_CONSOLE_FAILURE_ANNOTATIONS: '@testFile@:@testFileLine@: @category@: @outcome@ - @outcomeReason@ (@testIdAndCycle@)' }
+                        env: { PYSYS_CONSOLE_FAILURE_ANNOTATIONS: '@testFile@:@testFileLine@: @category@: @outcome@ - @outcomeReason@ (@testIdAndCycle@)' }
                     }),
                     ["pysys"]
                 );
@@ -159,25 +161,25 @@ export class PysysTaskProvider implements vscode.TaskProvider {
                 return task;
             }
         }
-		return undefined;
+        return undefined;
     }
-    
+
     public async runCustom(element: PysysDirectory | PysysProject) {
         const tasks: vscode.Task[] = await vscode.tasks.fetchTasks();
         let args: string[] | undefined;
         const projectDefinition: string = element.label;
 
-        for(let task of tasks) {
+        for (let task of tasks) {
             if (task.definition.project === projectDefinition) {
                 args = task.definition.extraargs;
             }
         }
 
         const cwd: string = element.fsPath;
-        if(args) {
-            const task : vscode.Task | undefined =
+        if (args) {
+            const task: vscode.Task | undefined =
                 await this.runPysysTest(cwd, element.ws, args);
-            if(task) {
+            if (task) {
                 await vscode.tasks.executeTask(task);
             }
         } else {
@@ -188,7 +190,7 @@ export class PysysTaskProvider implements vscode.TaskProvider {
                 project: `${projectDefinition}`,
                 extraargs: [],
                 problemMatcher: ["$pysys"],
-                label: `pysys: run /${projectDefinition}` 
+                label: `pysys: run /${projectDefinition}`
             };
 
             const out = await this.writeTaskConfig(definition, element.ws);

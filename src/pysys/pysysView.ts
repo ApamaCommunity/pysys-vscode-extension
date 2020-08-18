@@ -13,17 +13,17 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
 
     private workspaceList: PysysWorkspace[] = [];
 
-    private interpreter: string | undefined;
-
     private isFlatStructure: boolean;
 
     constructor(private logger: vscode.OutputChannel,
         private workspaces: vscode.WorkspaceFolder[],
         private context: vscode.ExtensionContext,
-        private taskProvider: PysysTaskProvider) {
+        private taskProvider: PysysTaskProvider,
+        private interpreter: string) {
         
-        this.interpreter = " python -m pysys ";
         this.registerCommands();
+        
+        this.interpreter = interpreter;
 
         this.isFlatStructure = false;
 
