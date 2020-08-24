@@ -119,30 +119,51 @@ export class PysysProject extends vscode.TreeItem implements PysysTreeItem {
 
         let entry : any ; 
         for(const [u,t]  of  alldirectories) {
-            const label: string = path.basename(u.fsPath);
-            if(t === structureType.directory) {
-                result.push(new PysysDirectory(
-                    label,
-                    vscode.TreeItemCollapsibleState.Collapsed,
-                    this.ws,
-                    this.fsPath,
-                    path.join(this.fsPath, label),
-                    this.resourceDir,
-                    []
-                ));
-            } else {
-                result.push(new PysysTest(
-                    label,
-                    vscode.TreeItemCollapsibleState.None,
-                    this.ws,
-                    this.fsPath,
-                    path.join(this.fsPath, label),
-                    this.resourceDir
-                ));
+            if( await this.projectFilter(vscode.Uri.file(`${this.fsPath + u.fsPath}`))){
+                const label: string = path.basename(u.fsPath);
+                if(t === structureType.directory) {
+                    result.push(new PysysDirectory(
+                        label,
+                        vscode.TreeItemCollapsibleState.Collapsed,
+                        this.ws,
+                        this.fsPath,
+                        path.join(this.fsPath, label),
+                        this.resourceDir,
+                        []
+                    ));
+                } else {
+                    result.push(new PysysTest(
+                        label,
+                        vscode.TreeItemCollapsibleState.None,
+                        this.ws,
+                        this.fsPath,
+                        path.join(this.fsPath, label),
+                        this.resourceDir
+                    ));
+                }
             }
         }
 
         return result;
+    }
+
+    async projectFilter(folder: vscode.Uri): Promise<boolean | undefined> {
+        try {
+            const contents : [string,vscode.FileType][] = await vscode.workspace.fs.readDirectory(folder);
+            if(path.basename(folder.fsPath).startsWith('.')) {
+                return false;
+            }
+
+            for (let item of contents) {
+                if(item[0] === "pysysproject.xml") {
+                    return false;
+                }
+            }
+            return true;
+        } catch (e) {
+            return undefined;
+        }
+        
     }
 
 }
@@ -180,15 +201,30 @@ export class PysysWorkspace extends vscode.TreeItem implements PysysTreeItem {
 
         for (let index: number = 0; index < projectNames.length; index++) {
             const project: vscode.Uri = projectNames[index];
-            const label: string = path.relative(this.ws.uri.fsPath, path.dirname(project.fsPath));
-            let current: PysysProject = new PysysProject(
-                label,
-                vscode.TreeItemCollapsibleState.Collapsed,
-                this.ws,
-                path.join(this.fsPath, label),
-                path.join(this.fsPath, label),
-                this.resourceDir
-            );
+            let label: string = path.relative(this.ws.uri.fsPath, path.dirname(project.fsPath));
+
+            let current: PysysProject;
+            if(!label) {
+                current = new PysysProject(
+                    this.label,
+                    vscode.TreeItemCollapsibleState.Collapsed,
+                    this.ws,
+                    path.join(this.fsPath, label),
+                    path.join(this.fsPath, label),
+                    this.resourceDir
+                );
+            } else {
+                current = new PysysProject(
+                    label,
+                    vscode.TreeItemCollapsibleState.Collapsed,
+                    this.ws,
+                    path.join(this.fsPath, label),
+                    path.join(this.fsPath, label),
+                    this.resourceDir
+                );
+
+            }
+
             result.push(current);
         }
 
