@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import * as path from "path";
-import {  getStructure, structureType } from "../utils/fsUtils";
+import {  fsFilter, getStructure, structureType } from "../utils/fsUtils";
 
 export interface PysysTreeItem {
     label: string;
@@ -60,26 +60,34 @@ export class PysysDirectory extends vscode.TreeItem implements PysysTreeItem {
 
         let entry : any ; 
         for(const [u,t]  of  alldirectories) {
-            const label: string = path.basename(u.fsPath);
-            if(t === structureType.directory) {
-                result.push(new PysysDirectory(
-                    label,
-                    vscode.TreeItemCollapsibleState.Collapsed,
-                    this.ws,
-                    this.parent,
-                    path.join(this.fsPath, label),
-                    this.resourceDir,
-                    []
-                ));
-            } else {
-                result.push(new PysysTest(
-                    label,
-                    vscode.TreeItemCollapsibleState.None,
-                    this.ws,
-                    this.parent,
-                    path.join(this.fsPath, label),
-                    this.resourceDir
-                ));
+            if( await fsFilter(this) ) {
+                const label: string = path.basename(u.fsPath);
+                let current: PysysDirectory | PysysTest;
+
+                if(t === structureType.directory) {
+                    current = new PysysDirectory(
+                        label,
+                        vscode.TreeItemCollapsibleState.Collapsed,
+                        this.ws,
+                        this.parent,
+                        path.join(this.fsPath, label),
+                        this.resourceDir,
+                        []
+                    );
+                } else {
+                    current = new PysysTest(
+                        label,
+                        vscode.TreeItemCollapsibleState.None,
+                        this.ws,
+                        this.parent,
+                        path.join(this.fsPath, label),
+                        this.resourceDir
+                    );
+                }
+
+                if (await fsFilter(current)) {
+                    result.push(current);
+                }
             }
         }
 
@@ -119,51 +127,36 @@ export class PysysProject extends vscode.TreeItem implements PysysTreeItem {
 
         let entry : any ; 
         for(const [u,t]  of  alldirectories) {
-            if( await this.projectFilter(vscode.Uri.file(`${this.fsPath + u.fsPath}`))){
-                const label: string = path.basename(u.fsPath);
-                if(t === structureType.directory) {
-                    result.push(new PysysDirectory(
-                        label,
-                        vscode.TreeItemCollapsibleState.Collapsed,
-                        this.ws,
-                        this.fsPath,
-                        path.join(this.fsPath, label),
-                        this.resourceDir,
-                        []
-                    ));
-                } else {
-                    result.push(new PysysTest(
-                        label,
-                        vscode.TreeItemCollapsibleState.None,
-                        this.ws,
-                        this.fsPath,
-                        path.join(this.fsPath, label),
-                        this.resourceDir
-                    ));
-                }
+            const label: string = path.basename(u.fsPath);
+            let current: PysysDirectory | PysysTest;
+
+            if(t === structureType.directory) {
+                current = new PysysDirectory(
+                    label,
+                    vscode.TreeItemCollapsibleState.Collapsed,
+                    this.ws,
+                    this.fsPath,
+                    path.join(this.fsPath, label),
+                    this.resourceDir,
+                    []
+                );
+            } else {
+                current = new PysysTest(
+                    label,
+                    vscode.TreeItemCollapsibleState.None,
+                    this.ws,
+                    this.fsPath,
+                    path.join(this.fsPath, label),
+                    this.resourceDir
+                );
+            }
+
+            if (await fsFilter(current)) {
+                result.push(current);
             }
         }
 
         return result;
-    }
-
-    async projectFilter(folder: vscode.Uri): Promise<boolean | undefined> {
-        try {
-            const contents : [string,vscode.FileType][] = await vscode.workspace.fs.readDirectory(folder);
-            if(path.basename(folder.fsPath).startsWith('.')) {
-                return false;
-            }
-
-            for (let item of contents) {
-                if(item[0] === "pysysproject.xml") {
-                    return false;
-                }
-            }
-            return true;
-        } catch (e) {
-            return undefined;
-        }
-        
     }
 
 }
@@ -196,7 +189,6 @@ export class PysysWorkspace extends vscode.TreeItem implements PysysTreeItem {
         let result: PysysProject[] = [];
 
         let projectsPattern: vscode.RelativePattern = new vscode.RelativePattern(this.ws, "**/pysysproject.xml");
-
         let projectNames: vscode.Uri[] = await vscode.workspace.findFiles(projectsPattern);
 
         for (let index: number = 0; index < projectNames.length; index++) {
@@ -224,8 +216,10 @@ export class PysysWorkspace extends vscode.TreeItem implements PysysTreeItem {
                 );
 
             }
-
-            result.push(current);
+            
+            if ( await fsFilter(current) ) {
+                result.push(current);
+            }
         }
 
         return result;

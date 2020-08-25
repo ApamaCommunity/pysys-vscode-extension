@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import * as path from "path";
-import { PysysProject } from "../pysys/pysys";
+import { PysysTreeItem, PysysDirectory, PysysProject } from "../pysys/pysys";
 import { Uri } from "vscode";
 
 export async function pickWorkspaceFolder(): Promise<vscode.WorkspaceFolder | undefined> {
@@ -146,6 +146,38 @@ export async function createTaskConfig(ws: vscode.WorkspaceFolder) {
     wsedit.insert(taskFileURI,new vscode.Position(0,0),JSON.stringify(config, null, 4));
 
     await vscode.workspace.applyEdit(wsedit);
+}
+
+export async function fsFilter(item: PysysTreeItem): Promise<boolean | undefined> {
+    try {
+        const contents: [string, vscode.FileType][] = await vscode.workspace.fs.readDirectory(vscode.Uri.file(item.fsPath));
+
+        const filename: string = path.basename(item.fsPath);
+        const files: string[] = contents.map(x => x[0]);
+
+        if(filename.startsWith('.') || filename.startsWith('_')) {
+            return false;
+        }
+
+        for(const file of files) {
+            if(file === ".pysysignore" || file === "pysysignore") {
+                return false;
+            }
+        }
+
+        if (item instanceof PysysDirectory) {
+            for(const file of files) {
+                if(file === "pysysproject.xml") {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    } catch (e) {
+        return undefined;
+    }
+    
 }
 
 
