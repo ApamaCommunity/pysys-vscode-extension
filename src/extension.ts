@@ -54,7 +54,7 @@ async function buildStatusBar(logger: vscode.OutputChannel, context: vscode.Exte
 
 async function getPysysInterpreter(logger: vscode.OutputChannel): Promise<string> {
 	let pysysVersion: string = "";
-	let cmds: string[] = ["python", "py -3", "python3"];
+	let cmds: string[] = ["py -3", "python3", "python"];
 
 	let errorMessage: string = "No python installation found, please visit https://www.python.org/downloads/";
 	for(let cmd of cmds) {
@@ -64,21 +64,19 @@ async function getPysysInterpreter(logger: vscode.OutputChannel): Promise<string
 
 			let version: string = versionOutput.stdout.match(/([.-9])+/g)[0];
 
-			if(version > "3.7") {
-				let pysysVersionCmd: PysysRunner = new PysysRunner("pysys version", `${cmd} -m pysys -V`, logger);
-				let installed: boolean;
-				try {
-					let versionOutput: any = await pysysVersionCmd.run(".",[]);
-					return `${cmd} -m pysys`;
-				} catch (e) {}
-				
-				installed = await installPysys(cmd, logger);
-				if(installed) {
-					return `${cmd} -m pysys`;
-				} else {
-					errorMessage = "Pysys not installed";
-					break;
-				}
+			let pysysVersionCmd: PysysRunner = new PysysRunner("pysys version", `${cmd} -m pysys -V`, logger);
+			let installed: boolean;
+			try {
+				let versionOutput: any = await pysysVersionCmd.run(".",[]);
+				return `${cmd} -m pysys`;
+			} catch (e) {}
+			
+			installed = await installPysys(cmd, logger);
+			if(installed) {
+				return `${cmd} -m pysys`;
+			} else {
+				errorMessage = "Pysys not installed";
+				break;
 			}
 			
 		} catch (e) {
