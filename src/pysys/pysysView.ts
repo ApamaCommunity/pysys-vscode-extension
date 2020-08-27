@@ -170,6 +170,26 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
                     }
                 }),
 
+                vscode.commands.registerCommand("pysys.runProjectValidate", async (element?: PysysTest) => {
+                    if(element) {
+                        const task : vscode.Task | undefined =
+                            await this.taskProvider.runPysysTest(`${element.fsPath}`, element.ws, ["-y"]);
+                        if(task) {
+                            await vscode.tasks.executeTask(task);
+                        }
+                    }
+                }),
+
+                vscode.commands.registerCommand("pysys.runProjectDebug", async (element?: PysysTest) => {
+                    if(element) {
+                        const task : vscode.Task | undefined =
+                            await this.taskProvider.runPysysTest(`${element.fsPath}`, element.ws, ["-v DEBUG"]);
+                        if(task) {
+                            await vscode.tasks.executeTask(task);
+                        }
+                    }
+                }),
+
                 vscode.commands.registerCommand("pysys.editTest", async (element?: PysysTest) => {
                     if(element) {
                         const setting: vscode.Uri = vscode.Uri.parse(path.join(element.fsPath, 'run.py'));
@@ -187,6 +207,32 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
 
                         const task : vscode.Task | undefined =
                             await this.taskProvider.runPysysTest(`${element.fsPath}`, element.ws, [label]);
+                        if(task) {
+                            await vscode.tasks.executeTask(task);
+                        }
+                    }
+                }),
+
+                vscode.commands.registerCommand("pysys.runTestCustom", async (element?: PysysTest) => {
+                    if(element) {
+                        await this.taskProvider.runCustom(element);
+                    }
+                }),
+
+                vscode.commands.registerCommand("pysys.runTestValidate", async (element?: PysysTest) => {
+                    if(element) {
+                        const task : vscode.Task | undefined =
+                            await this.taskProvider.runPysysTest(`${element.fsPath}`, element.ws, ["-y"]);
+                        if(task) {
+                            await vscode.tasks.executeTask(task);
+                        }
+                    }
+                }),
+
+                vscode.commands.registerCommand("pysys.runTestDebug", async (element?: PysysTest) => {
+                    if(element) {
+                        const task : vscode.Task | undefined =
+                            await this.taskProvider.runPysysTest(`${element.fsPath}`, element.ws, ["-v DEBUG"]);
                         if(task) {
                             await vscode.tasks.executeTask(task);
                         }
@@ -219,6 +265,26 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
                 vscode.commands.registerCommand("pysys.runDirectoryCustom", async (element?: PysysDirectory) => {
                     if(element) {
                         await this.taskProvider.runCustom(element);
+                    }
+                }),
+
+                vscode.commands.registerCommand("pysys.runDirectoryValidate", async (element?: PysysTest) => {
+                    if(element) {
+                        const task : vscode.Task | undefined =
+                            await this.taskProvider.runPysysTest(`${element.fsPath}`, element.ws, ["-y"]);
+                        if(task) {
+                            await vscode.tasks.executeTask(task);
+                        }
+                    }
+                }),
+
+                vscode.commands.registerCommand("pysys.runDirectoryDebug", async (element?: PysysTest) => {
+                    if(element) {
+                        const task : vscode.Task | undefined =
+                            await this.taskProvider.runPysysTest(`${element.fsPath}`, element.ws, ["-v DEBUG"]);
+                        if(task) {
+                            await vscode.tasks.executeTask(task);
+                        }
                     }
                 }),
 

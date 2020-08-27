@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { PysysDirectory, PysysProject } from "../pysys/pysys";
+import { PysysDirectory, PysysProject, PysysTest } from "../pysys/pysys";
 import path = require("path");
 import semver = require("semver");
 
@@ -7,7 +7,7 @@ export interface PysysTaskDefinition extends vscode.TaskDefinition {
     type: string;
     task: string;
     cwd: string;
-    project: string;
+    tests: string;
     extraargs: string[];
     problemMatcher: string[];
     label: string
@@ -164,13 +164,14 @@ export class PysysTaskProvider implements vscode.TaskProvider {
         return undefined;
     }
 
-    public async runCustom(element: PysysDirectory | PysysProject) {
+    public async runCustom(element: PysysDirectory | PysysProject | PysysTest) {
         const tasks: vscode.Task[] = await vscode.tasks.fetchTasks();
+
+        const testsDir: string = path.relative(element.ws.uri.fsPath, element.fsPath);
         let args: string[] | undefined;
-        const projectDefinition: string = element.label;
 
         for (let task of tasks) {
-            if (task.definition.project === projectDefinition) {
+            if (task.definition.tests === testsDir) {
                 args = task.definition.extraargs;
             }
         }
@@ -187,10 +188,10 @@ export class PysysTaskProvider implements vscode.TaskProvider {
                 type: "pysys",
                 task: "run",
                 cwd,
-                project: `${projectDefinition}`,
+                tests: testsDir,
                 extraargs: [],
                 problemMatcher: ["$pysys"],
-                label: `pysys: run /${projectDefinition}`
+                label: `pysys: run ${testsDir}`
             };
 
             const out = await this.writeTaskConfig(definition, element.ws);
