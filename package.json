@@ -40,9 +40,9 @@
 						"type": "string",
 						"description": "current working directory to run task from"
 					},
-					"project": {
+					"tests": {
 						"type": "string",
-						"description": "project for which to run task"
+						"description": "directory of tests for which to run task"
 					},
 					"extraargs": {
 						"type": "array",
@@ -126,11 +126,15 @@
 			},
 			{
 				"command": "pysys.runProjectCustom",
-				"title": "Run with custom arguments",
-				"icon": {
-					"light": "resources/light/double_arrow.svg",
-					"dark": "resources/dark/double_arrow.svg"
-				}
+				"title": "Run with custom arguments"
+			},
+			{
+				"command": "pysys.runProjectValidate",
+				"title": "Run validate method only"
+			},
+			{
+				"command": "pysys.runProjectDebug",
+				"title": "Run as debug"
 			},
 			{
 				"command": "pysys.runTest",
@@ -139,6 +143,18 @@
 					"light": "resources/light/play_arrow.svg",
 					"dark": "resources/dark/play_arrow.svg"
 				}
+			},
+			{
+				"command": "pysys.runTestCustom",
+				"title": "Run with custom arguments"
+			},
+			{
+				"command": "pysys.runTestValidate",
+				"title": "Run validate method only"
+			},
+			{
+				"command": "pysys.runTestDebug",
+				"title": "Run as debug"
 			},
 			{
 				"command": "pysys.openTaskConfig",
@@ -158,11 +174,15 @@
 			},
 			{
 				"command": "pysys.runDirectoryCustom",
-				"title": "Run with custom parameters",
-				"icon": {
-					"light": "resources/light/double_arrow.svg",
-					"dark": "resources/dark/double_arrow.svg"
-				}
+				"title": "Run with custom parameters"
+			},
+			{
+				"command": "pysys.runDirectoryValidate",
+				"title": "Run validate method only"
+			},
+			{
+				"command": "pysys.runDirectoryDebug",
+				"title": "Run as debug"
 			},
 			{
 				"command": "pysys.openShell",
@@ -230,18 +250,28 @@
 				},
 				{
 					"when": "view == pysysProjects && viewItem == project",
-					"command": "pysys.openShell",
+					"command": "pysys.runProjectValidate",
 					"group": "A@2"
 				},
 				{
 					"when": "view == pysysProjects && viewItem == project",
-					"command": "pysys.editProject",
+					"command": "pysys.runProjectDebug",
+					"group": "A@3"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == project",
+					"command": "pysys.openShell",
 					"group": "B@1"
 				},
 				{
 					"when": "view == pysysProjects && viewItem == project",
-					"command": "pysys.createDir",
+					"command": "pysys.editProject",
 					"group": "B@2"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == project",
+					"command": "pysys.createDir",
+					"group": "B@3"
 				},
 				{
 					"when": "view == pysysProjects && viewItem == directory",
@@ -260,13 +290,23 @@
 				},
 				{
 					"when": "view == pysysProjects && viewItem == directory",
-					"command": "pysys.openShell",
+					"command": "pysys.runDirectoryValidate",
 					"group": "A@2"
 				},
 				{
 					"when": "view == pysysProjects && viewItem == directory",
-					"command": "pysys.createDir",
+					"command": "pysys.runDirectoryDebug",
+					"group": "A@3"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == directory",
+					"command": "pysys.openShell",
 					"group": "B@1"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == directory",
+					"command": "pysys.createDir",
+					"group": "B@2"
 				},
 				{
 					"when": "view == pysysProjects && viewItem == test",
@@ -275,8 +315,23 @@
 				},
 				{
 					"when": "view == pysysProjects && viewItem == test",
-					"command": "pysys.editTest",
+					"command": "pysys.runTestCustom",
 					"group": "A@1"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == test",
+					"command": "pysys.runTestValidate",
+					"group": "A@2"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == test",
+					"command": "pysys.runTestDebug",
+					"group": "A@3"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == test",
+					"command": "pysys.editTest",
+					"group": "B@1"
 				}
 			]
 		}
