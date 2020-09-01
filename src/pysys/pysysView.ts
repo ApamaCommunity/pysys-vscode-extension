@@ -308,6 +308,16 @@ export class PysysProjectView implements vscode.TreeDataProvider<PysysTreeItem> 
                     }
                 }),
 
+                vscode.commands.registerCommand("pysys.info", async (element?: PysysProject) => {
+                    if(element) {
+                        const task : vscode.Task | undefined =
+                            await this.taskProvider.infoPrint(`${element.fsPath}`, element.ws);
+                        if(task) {
+                            await vscode.tasks.executeTask(task);
+                        }
+                    }
+                }),
+
                 vscode.commands.registerCommand("pysys.toggleFlatView", async (element?: PysysDirectory) => {
                     if(element) {
                         this.isFlatStructure = !this.isFlatStructure;
