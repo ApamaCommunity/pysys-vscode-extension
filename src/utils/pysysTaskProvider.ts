@@ -164,6 +164,21 @@ export class PysysTaskProvider implements vscode.TaskProvider {
         return undefined;
     }
 
+    public async infoPrint(cwd: string, workspace: vscode.WorkspaceFolder): Promise<vscode.Task | undefined> {
+        let task: vscode.Task = new vscode.Task(
+            { type: "pysys", task: "run" },
+            workspace,
+            "pysys info",
+            "pysys",
+            new vscode.ShellExecution(`${this.interpreter} print`, [], {
+                cwd
+            }),
+            []
+        );
+        task.group = "test";
+        return task;
+    }
+
     public async runCustom(element: PysysDirectory | PysysProject | PysysTest) {
         const tasks: vscode.Task[] = await vscode.tasks.fetchTasks();
 

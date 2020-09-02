@@ -77,6 +77,14 @@
 				}
 			},
 			{
+				"command": "pysys.info",
+				"title": "More Info",
+				"icon": {
+					"light": "resources/light/info.svg",
+					"dark": "resources/dark/info.svg"
+				}
+			},
+			{
 				"command": "pysys.createProject",
 				"title": "Create project",
 				"icon": {
@@ -260,18 +268,23 @@
 				},
 				{
 					"when": "view == pysysProjects && viewItem == project",
-					"command": "pysys.openShell",
+					"command": "pysys.info",
 					"group": "B@1"
 				},
 				{
 					"when": "view == pysysProjects && viewItem == project",
-					"command": "pysys.editProject",
+					"command": "pysys.openShell",
 					"group": "B@2"
 				},
 				{
 					"when": "view == pysysProjects && viewItem == project",
-					"command": "pysys.createDir",
+					"command": "pysys.editProject",
 					"group": "B@3"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == project",
+					"command": "pysys.createDir",
+					"group": "B@4"
 				},
 				{
 					"when": "view == pysysProjects && viewItem == directory",
@@ -300,18 +313,28 @@
 				},
 				{
 					"when": "view == pysysProjects && viewItem == directory",
-					"command": "pysys.openShell",
+					"command": "pysys.info",
 					"group": "B@1"
 				},
 				{
 					"when": "view == pysysProjects && viewItem == directory",
-					"command": "pysys.createDir",
+					"command": "pysys.openShell",
 					"group": "B@2"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == directory",
+					"command": "pysys.createDir",
+					"group": "B@3"
+				},
+				{
+					"when": "view == pysysProjects && viewItem == test",
+					"command": "pysys.info",
+					"group": "inline@1"
 				},
 				{
 					"when": "view == pysysProjects && viewItem == test",
 					"command": "pysys.runTest",
-					"group": "inline@1"
+					"group": "inline@2"
 				},
 				{
 					"when": "view == pysysProjects && viewItem == test",
@@ -331,7 +354,7 @@
 				{
 					"when": "view == pysysProjects && viewItem == test",
 					"command": "pysys.editTest",
-					"group": "B@1"
+					"group": "B@2"
 				}
 			]
 		}
