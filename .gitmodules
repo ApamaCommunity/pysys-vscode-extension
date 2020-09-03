@@ -2,6 +2,3 @@
 	path = resources
 	url = https://github.com/CaribouJohn/apama-extension-resources.git
 	branch = master
-[submodule "pysys-vscode-extension"]
-	path = pysys-vscode-extension
-	url = https://github.com/CaribouJohn/pysys-vscode-extension.git
