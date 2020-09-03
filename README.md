@@ -5,11 +5,9 @@ CI takes place on the Azure Platform building on Linux, Windows and Mac platform
 
 [![Build Status](https://dev.azure.com/CaribouJohnDevOps/pysys-vscode-extension/_apis/build/status/CaribouJohn.pysys-vscode-extension?branchName=master)](https://dev.azure.com/CaribouJohnDevOps/pysys-vscode-extension/_build/latest?definitionId=1&branchName=master)
 
-This is a vscode extension for the PySys testing framework. It enables the use of this testing framework in Visual Studio Code allowing the use of the UI to create, edit, and execute tests for your software projects.
+This extension allows you to run PySys tests in the VSCode UI.
 
-For more information about PySys please visit the [PySys project page](https://pypi.org/project/PySys/)
-
-## Features
+For more information about PySys please visit the [PySys project page](https://pysys-test.github.io/pysys-test/)
 
 ![overview](images/example_screen1.png)
 
@@ -31,10 +29,12 @@ For more information about PySys please visit the [PySys project page](https://p
 
 Python and the PySys framework are required to use this extension.
 
-The extension will use the python and pysys that are currently on the path. The status bar will show the version of PySys found.
+The extension will use the python and PySys that are currently on the path. The status bar will show the version of PySys found.
 ![problems tab](images/version.png)
 
 ___The extension will not load if python or PySys are not detected.___
+
+# Features
 
 ## PySys view
 
