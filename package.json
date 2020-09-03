@@ -25,6 +25,15 @@
 	],
 	"main": "./out/extension",
 	"contributes": {
+		"configuration": {
+			"title": "Python interpeter for Pysys",
+			"properties": {
+				"pysys.defaultInterpreterPath": {
+					"type": "string",
+					"description": "Path to Python that has Pysys installed. The extension will attempt to set this, but the value can be overidden manually."
+				}
+			}
+		},
 		"taskDefinitions": [
 			{
 				"type": "pysys",
