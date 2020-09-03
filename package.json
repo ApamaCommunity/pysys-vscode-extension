@@ -26,11 +26,15 @@
 	"main": "./out/extension",
 	"contributes": {
 		"configuration": {
-			"title": "Python interpeter for Pysys",
+			"title": "Python settings for Pysys",
 			"properties": {
-				"pysys.defaultInterpreterPath": {
+				"pysys.interpreter_path": {
 					"type": "string",
-					"description": "Path to Python that has Pysys installed. The extension will attempt to set this, but the value can be overidden manually."
+					"description": "Path to Python that has Pysys installed. This overrides the default of using python on the PATH."
+				},
+				"pysys.PYTHONPATH": {
+					"type": "string",
+					"description": "PYTHONPATH will be *Added* to the environment when running pysys."
 				}
 			}
 		},

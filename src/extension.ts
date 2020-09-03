@@ -54,7 +54,16 @@ async function buildStatusBar(logger: vscode.OutputChannel, context: vscode.Exte
 
 async function getPysysInterpreter(logger: vscode.OutputChannel): Promise<string> {
 	let pysysVersion: string = "";
+
+	//we will normally just scan through these elements
 	let cmds: string[] = ["py -3", "python3", "python"];
+	let cmd_env: string = "";
+
+	//however if there is a config entry for interpreter_path then we want to use this 
+	const override_cmd = vscode.workspace.getConfiguration("pysys").get("interpreter_path","na");
+	if (override_cmd !== "na") {
+		cmds = [override_cmd];
+	}
 
 	let errorMessage: string = "No python installation found, please visit https://www.python.org/downloads/";
 	for(let cmd of cmds) {
@@ -62,7 +71,13 @@ async function getPysysInterpreter(logger: vscode.OutputChannel): Promise<string
 			let versionCmd: PysysRunner = new PysysRunner("version", `${cmd} -V`, logger);
 			let versionOutput: any = await versionCmd.run(".",[]);
 
-			let version: string = versionOutput.stdout.match(/([.-9])+/g)[0];
+			let version: string = "";
+			if( versionOutput.stdout.indexOf("ersion") >= 0) {
+				version = versionOutput.stdout.match(/([.-9])+/g)[0];
+
+			} else if (versionOutput.stderr.indexOf("ersion") >= 0) {
+				version = versionOutput.stderr.match(/([.-9])+/g)[0];
+			}
 
 			let pysysVersionCmd: PysysRunner = new PysysRunner("pysys version", `${cmd} -m pysys -V`, logger);
 			let installed: boolean;
