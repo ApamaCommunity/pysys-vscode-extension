@@ -253,12 +253,12 @@
 				{
 					"when": "view == pysysProjects && viewItem == project",
 					"command": "pysys.createTest",
-					"group": "inline@1"
+					"group": "inline@2"
 				},
 				{
 					"when": "view == pysysProjects && viewItem == project",
 					"command": "pysys.runProject",
-					"group": "inline@2"
+					"group": "inline@3"
 				},
 				{
 					"when": "view == pysysProjects && viewItem == project",
@@ -278,7 +278,7 @@
 				{
 					"when": "view == pysysProjects && viewItem == project",
 					"command": "pysys.info",
-					"group": "B@1"
+					"group": "inline@1"
 				},
 				{
 					"when": "view == pysysProjects && viewItem == project",
@@ -298,12 +298,12 @@
 				{
 					"when": "view == pysysProjects && viewItem == directory",
 					"command": "pysys.createTest",
-					"group": "inline@1"
+					"group": "inline@2"
 				},
 				{
 					"when": "view == pysysProjects && viewItem == directory",
 					"command": "pysys.runDirectory",
-					"group": "inline@2"
+					"group": "inline@3"
 				},
 				{
 					"when": "view == pysysProjects && viewItem == directory",
@@ -323,7 +323,7 @@
 				{
 					"when": "view == pysysProjects && viewItem == directory",
 					"command": "pysys.info",
-					"group": "B@1"
+					"group": "inline@1"
 				},
 				{
 					"when": "view == pysysProjects && viewItem == directory",
@@ -338,12 +338,12 @@
 				{
 					"when": "view == pysysProjects && viewItem == test",
 					"command": "pysys.info",
-					"group": "inline@1"
+					"group": "inline@2"
 				},
 				{
 					"when": "view == pysysProjects && viewItem == test",
 					"command": "pysys.runTest",
-					"group": "inline@2"
+					"group": "inline@3"
 				},
 				{
 					"when": "view == pysysProjects && viewItem == test",
