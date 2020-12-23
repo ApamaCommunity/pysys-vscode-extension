@@ -61,7 +61,7 @@ async function getPysysInterpreter(logger: vscode.OutputChannel): Promise<string
 
 	//however if there is a config entry for interpreter_path then we want to use this 
 	const override_cmd = vscode.workspace.getConfiguration("pysys").get("interpreter_path","na");
-	if (override_cmd !== "na") {
+	if (override_cmd !== "na" && override_cmd !== "") {
 		cmds = [override_cmd];
 	}
 
@@ -72,10 +72,10 @@ async function getPysysInterpreter(logger: vscode.OutputChannel): Promise<string
 			let versionOutput: any = await versionCmd.run(".",[]);
 
 			let version: string = "";
-			if( versionOutput.stdout.indexOf("ersion") >= 0) {
+			if( versionOutput.stdout.indexOf("ersion") >= 0 || versionOutput.stdout.indexOf("ython") >= 0) {
 				version = versionOutput.stdout.match(/([.-9])+/g)[0];
 
-			} else if (versionOutput.stderr.indexOf("ersion") >= 0) {
+			} else if (versionOutput.stderr.indexOf("ersion") >= 0 || versionOutput.stdout.indexOf("ython") >= 0) {
 				version = versionOutput.stderr.match(/([.-9])+/g)[0];
 			}
 
