@@ -1,5 +1,5 @@
 {
-	"publisher": "cariboujohn",
+	"publisher": "ApamaCommunity",
 	"name": "pysys-vscode-extension",
 	"license": "(Apache-2.0)",
 	"author": {
@@ -10,7 +10,7 @@
 	"description": "This is a vscode extension for the pysys framwork",
 	"repository": {
 		"type": "github",
-		"url": "https://github.com/CaribouJohn/pysys-vscode-extension"
+		"url": "https://github.com/ApamaCommunity/pysys-vscode-extension"
 	},
 	"version": "0.8.1",
 	"engines": {

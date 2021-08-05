@@ -76,3 +76,9 @@ Or set your own settings for running projects or directories, such as setting cu
 Finally if you use PySys 1.6+ the output of your runs will be automatically shown in the problems tab of vscode. These problems can then be used to navigate to the source of the error.
 
 ![problems](images/problems.gif)
+
+## Release Notes
+
+## v0.8.1
+
+First release under ApamaCommunity.
