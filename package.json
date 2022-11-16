@@ -7,7 +7,7 @@
 		"email": "john.heath@softwareag.com"
 	},
 	"displayName": "pysys-vscode-extension",
-	"description": "This is a vscode extension for the pysys framwork",
+	"description": "This is a Visual Studio Code extension for the PySys system test framwork",
 	"repository": {
 		"type": "github",
 		"url": "https://github.com/ApamaCommunity/pysys-vscode-extension"
@@ -26,15 +26,15 @@
 	"main": "./out/extension",
 	"contributes": {
 		"configuration": {
-			"title": "Python settings for Pysys",
+			"title": "Python settings for PySys",
 			"properties": {
 				"pysys.interpreter_path": {
 					"type": "string",
-					"description": "Path to Python that has Pysys installed. This overrides the default of using python on the PATH."
+					"description": "Path of the Python executable, overriding the default of using py/python from the PATH. Usually this should be a Python installation or venv with PySys installed."
 				},
 				"pysys.PYTHONPATH": {
 					"type": "string",
-					"description": "PYTHONPATH will be *Added* to the environment when running pysys."
+					"description": "PYTHONPATH will be *added* to the environment when running PySys. Use ; as delimiter on Windows and : on Unix. "
 				}
 			}
 		},
@@ -47,7 +47,7 @@
 				"properties": {
 					"task": {
 						"type": "string",
-						"description": "The pysys task to customize"
+						"description": "The PySys task to customize"
 					},
 					"cwd": {
 						"type": "string",
